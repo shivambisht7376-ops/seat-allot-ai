@@ -225,8 +225,8 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
       <div className="lg:col-span-8 space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="text-lg font-bold text-slate-900 font-sans">Project & Workspace Mapping</h3>
-            <p className="text-xs text-slate-500 font-sans mt-0.5">Assigned designated corporate zones and seating utilization metrics</p>
+            <h3 className="text-lg font-bold text-indigo-900 font-sans">Project & Workspace Mapping</h3>
+            <p className="text-xs text-indigo-500 font-sans mt-0.5">Assigned designated corporate zones and seating utilization metrics</p>
           </div>
 
           <button
@@ -240,7 +240,7 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-16 gap-2 text-slate-400">
+          <div className="flex items-center justify-center py-16 gap-2 text-indigo-400">
             <RefreshCw className="w-5 h-5 animate-spin" />
             <span>Recalculating project allocations...</span>
           </div>
@@ -264,10 +264,10 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
                           className="w-3.5 h-3.5 rounded-sm"
                           style={{ backgroundColor: proj.color }}
                         />
-                        <h4 className="font-bold text-slate-900 text-sm">{proj.name}</h4>
+                        <h4 className="font-bold text-indigo-900 text-sm">{proj.name}</h4>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 px-1.5 py-0.5 rounded">
+                        <span className="font-mono text-[10px] font-bold bg-slate-100 text-indigo-600 border border-slate-200 px-1.5 py-0.5 rounded">
                           {proj.code}
                         </span>
                         <button 
@@ -277,7 +277,7 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
                             setEditLead(proj.lead);
                             setEditTargetZone(proj.targetZone);
                           }}
-                          className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition"
+                          className="p-1 text-indigo-400 hover:text-blue-600 hover:bg-blue-50 rounded transition"
                           title="Edit Project"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
@@ -287,18 +287,18 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
 
                     <div className="grid grid-cols-2 gap-4 mt-4 text-xs font-sans">
                       <div>
-                        <span className="text-slate-400 block mb-0.5">Project Lead</span>
-                        <span className="font-semibold text-slate-800">{proj.lead}</span>
+                        <span className="text-indigo-400 block mb-0.5">Project Lead</span>
+                        <span className="font-semibold text-indigo-800">{proj.lead}</span>
                       </div>
                       <div>
-                        <span className="text-slate-400 block mb-0.5">Target Workspace</span>
-                        <span className="font-semibold text-slate-800 font-mono">{proj.targetZone.replace('-', ' • ')}</span>
+                        <span className="text-indigo-400 block mb-0.5">Target Workspace</span>
+                        <span className="font-semibold text-indigo-800 font-mono">{proj.targetZone.replace('-', ' • ')}</span>
                       </div>
                     </div>
 
                     {/* Progress slider bar */}
                     <div className="mt-5">
-                      <div className="flex justify-between items-center text-[10px] text-slate-500 font-bold font-sans uppercase tracking-wider mb-1.5">
+                      <div className="flex justify-between items-center text-[10px] text-indigo-500 font-bold font-sans uppercase tracking-wider mb-1.5">
                         <span>Seating Allocation</span>
                         <span>{rate}% Seated ({stats.seated}/{stats.count})</span>
                       </div>
@@ -310,7 +310,7 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
                       </div>
                     </div>
                   </div>
-                  <div className="flex justify-between items-center text-[10px] font-semibold font-mono text-slate-500 pt-3 border-t border-slate-100 mt-4">
+                  <div className="flex justify-between items-center text-[10px] font-semibold font-mono text-indigo-500 pt-3 border-t border-slate-100 mt-4">
                     <span>Active Team: {stats.count} members</span>
                     <div className="flex items-center gap-2">
                       {unseated > 0 ? (
@@ -347,18 +347,18 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
           >
             <div>
               <div className="border-b border-slate-100 pb-3 mb-4">
-                <h4 className="text-sm font-extrabold text-slate-950 flex items-center gap-2">
-                  <Briefcase className="w-4.5 h-4.5 text-slate-700" />
+                <h4 className="text-sm font-extrabold text-indigo-950 flex items-center gap-2">
+                  <Briefcase className="w-4.5 h-4.5 text-indigo-700" />
                   Map Project Zone
                 </h4>
-                <p className="text-xs text-slate-500 font-sans mt-1">Configure preferred zones to optimize team-clustering seating arrangements.</p>
+                <p className="text-xs text-indigo-500 font-sans mt-1">Configure preferred zones to optimize team-clustering seating arrangements.</p>
               </div>
 
               <div className="space-y-4 text-xs font-sans">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Project Code Prefix</label>
+                  <label className="block font-bold text-indigo-700 mb-1">Project Code Prefix</label>
                   <div className="flex items-center">
-                    <span className="bg-slate-100 text-slate-500 border border-r-0 border-slate-200 px-3 py-2 rounded-l-lg font-mono font-bold">
+                    <span className="bg-slate-100 text-indigo-500 border border-r-0 border-slate-200 px-3 py-2 rounded-l-lg font-mono font-bold">
                       PROJ-
                     </span>
                     <input
@@ -374,7 +374,7 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Project Name</label>
+                  <label className="block font-bold text-indigo-700 mb-1">Project Name</label>
                   <input
                     type="text"
                     id="project-name-input"
@@ -387,7 +387,7 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Project Director / Lead</label>
+                  <label className="block font-bold text-indigo-700 mb-1">Project Director / Lead</label>
                   <input
                     type="text"
                     id="project-lead-input"
@@ -400,7 +400,7 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Designated Cluster Zone</label>
+                  <label className="block font-bold text-indigo-700 mb-1">Designated Cluster Zone</label>
                   <select
                     id="project-target-zone-select"
                     value={targetZone}
@@ -424,7 +424,7 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
                 type="button"
                 id="btn-cancel-project"
                 onClick={() => setShowAddForm(false)}
-                className="flex-1 py-2 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 font-semibold transition cursor-pointer text-xs"
+                className="flex-1 py-2 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 text-indigo-600 font-semibold transition cursor-pointer text-xs"
               >
                 Cancel
               </button>
@@ -451,7 +451,7 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
                 <span className="text-amber-100">Smart Mapping</span>
               </div>
               <h4 className="text-lg font-extrabold mb-2 leading-tight">Create designated work zones for project teams.</h4>
-              <p className="text-xs text-slate-400 font-sans leading-relaxed">
+              <p className="text-xs text-indigo-400 font-sans leading-relaxed">
                 Assigning a Target Workspace automatically restricts seat allocations for team members to ensure cross-functional clustering.
               </p>
             </div>
@@ -474,21 +474,21 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
       {editingProject && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fade-in">
           <div className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-sm w-full p-6 relative">
-            <button onClick={() => setEditingProject(null)} className="absolute top-4 right-4 p-1.5 hover:bg-slate-100 rounded-lg text-slate-400">
+            <button onClick={() => setEditingProject(null)} className="absolute top-4 right-4 p-1.5 hover:bg-slate-100 rounded-lg text-indigo-400">
               <X className="w-5 h-5" />
             </button>
-            <h4 className="font-extrabold text-slate-900 mb-4 text-lg">Edit Project</h4>
+            <h4 className="font-extrabold text-indigo-900 mb-4 text-lg">Edit Project</h4>
             <form onSubmit={handleEditSubmit} className="space-y-4 text-xs font-sans">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Project Name</label>
+                <label className="block font-bold text-indigo-700 mb-1">Project Name</label>
                 <input required type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Project Lead</label>
+                <label className="block font-bold text-indigo-700 mb-1">Project Lead</label>
                 <input required type="text" value={editLead} onChange={e => setEditLead(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Target Zone</label>
+                <label className="block font-bold text-indigo-700 mb-1">Target Zone</label>
                 <select value={editTargetZone} onChange={e => setEditTargetZone(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2">
                   {[1, 2, 3, 4].flatMap(floor => ['A', 'B', 'C', 'D'].map(zone => (
                     <option key={`F${floor}-Z${zone}`} value={`F${floor}-Z${zone}`}>Floor {floor} • Zone {zone}</option>
@@ -507,26 +507,26 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
       {managingTeamProject && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fade-in">
           <div className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-lg w-full p-6 relative flex flex-col max-h-[80vh]">
-            <button onClick={() => setManagingTeamProject(null)} className="absolute top-4 right-4 p-1.5 hover:bg-slate-100 rounded-lg text-slate-400">
+            <button onClick={() => setManagingTeamProject(null)} className="absolute top-4 right-4 p-1.5 hover:bg-slate-100 rounded-lg text-indigo-400">
               <X className="w-5 h-5" />
             </button>
-            <h4 className="font-extrabold text-slate-900 mb-1 text-lg">Assign Team to {managingTeamProject.code}</h4>
-            <p className="text-xs text-slate-500 mb-4">Select unassigned employees to add to this project.</p>
+            <h4 className="font-extrabold text-indigo-900 mb-1 text-lg">Assign Team to {managingTeamProject.code}</h4>
+            <p className="text-xs text-indigo-500 mb-4">Select unassigned employees to add to this project.</p>
             
             <div className="flex flex-col md:flex-row gap-4 h-full overflow-hidden min-h-[300px]">
               
               {/* Current Team Members */}
               <div className="flex-1 flex flex-col">
-                <h5 className="text-xs font-bold text-slate-700 mb-2">Current Members ({currentTeamList.length})</h5>
+                <h5 className="text-xs font-bold text-indigo-700 mb-2">Current Members ({currentTeamList.length})</h5>
                 <div className="flex-1 overflow-y-auto border border-slate-100 rounded-lg bg-slate-50/50 p-2 space-y-1">
                   {currentTeamList.length === 0 ? (
-                    <div className="text-xs text-center text-slate-400 py-8">No members assigned yet.</div>
+                    <div className="text-xs text-center text-indigo-400 py-8">No members assigned yet.</div>
                   ) : (
                     currentTeamList.map(emp => (
                       <div key={emp.id} className="flex items-center justify-between p-2 bg-white rounded border border-slate-200">
                         <div>
-                          <div className="font-bold text-xs text-slate-800">{emp.name}</div>
-                          <div className="text-[10px] text-slate-500">{emp.role}</div>
+                          <div className="font-bold text-xs text-indigo-800">{emp.name}</div>
+                          <div className="text-[10px] text-indigo-500">{emp.role}</div>
                         </div>
                         <button
                           onClick={() => handleRemoveMember(emp.id)}
@@ -543,9 +543,9 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
 
               {/* Add New Members */}
               <div className="flex-1 flex flex-col">
-                <h5 className="text-xs font-bold text-slate-700 mb-2">Assign New Members</h5>
+                <h5 className="text-xs font-bold text-indigo-700 mb-2">Assign New Members</h5>
                 <div className="relative mb-2">
-                  <Search className="w-4 h-4 absolute left-3 top-2 text-slate-400" />
+                  <Search className="w-4 h-4 absolute left-3 top-2 text-indigo-400" />
                   <input 
                     type="text" 
                     placeholder="Search unassigned..." 
@@ -556,7 +556,7 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
                 </div>
                 <div className="flex-1 overflow-y-auto border border-slate-100 rounded-lg bg-slate-50/50 p-2 space-y-1">
                   {unassignedList.length === 0 ? (
-                    <div className="text-xs text-center text-slate-400 py-8">No unassigned employees found.</div>
+                    <div className="text-xs text-center text-indigo-400 py-8">No unassigned employees found.</div>
                   ) : (
                     unassignedList.map(emp => (
                       <label key={emp.id} className="flex items-center gap-3 p-2 hover:bg-white rounded border border-transparent hover:border-slate-200 transition cursor-pointer">
@@ -570,8 +570,8 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
                           className="rounded text-blue-600 focus:ring-blue-500"
                         />
                         <div className="flex-1">
-                          <div className="font-bold text-xs text-slate-800">{emp.name}</div>
-                          <div className="text-[10px] text-slate-500">{emp.role}</div>
+                          <div className="font-bold text-xs text-indigo-800">{emp.name}</div>
+                          <div className="text-[10px] text-indigo-500">{emp.role}</div>
                         </div>
                       </label>
                     ))

@@ -62,8 +62,8 @@ export function EmployeeDashboard() {
               <Building2 className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="font-extrabold text-sm text-slate-900 block">Seat Allot AI</span>
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Employee Portal</span>
+              <span className="font-extrabold text-sm text-indigo-900 block">Seat Allot AI</span>
+              <span className="text-[10px] text-indigo-400 font-semibold uppercase tracking-wider block">Employee Portal</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -71,7 +71,7 @@ export function EmployeeDashboard() {
               <User className="w-3.5 h-3.5 text-emerald-600" />
               <span className="text-xs font-bold text-emerald-700">{user?.name}</span>
             </div>
-            <button onClick={logout} className="p-1.5 border border-slate-200 hover:bg-red-50 hover:border-red-200 rounded-lg text-slate-400 hover:text-red-500 transition cursor-pointer" title="Sign out">
+            <button onClick={logout} className="p-1.5 border border-slate-200 hover:bg-red-50 hover:border-red-200 rounded-lg text-indigo-400 hover:text-red-500 transition cursor-pointer" title="Sign out">
               <LogOut className="w-4 h-4" />
             </button>
           </div>
@@ -81,7 +81,7 @@ export function EmployeeDashboard() {
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 flex flex-col gap-6">
 
         {/* Tab Bar */}
-        <div className="border-b border-slate-200 flex gap-1 text-sm font-semibold text-slate-500 pb-px">
+        <div className="border-b border-slate-200 flex gap-1 text-sm font-semibold text-indigo-500 pb-px">
           {TABS.map(t => {
             const Icon = t.icon;
             return (
@@ -92,7 +92,7 @@ export function EmployeeDashboard() {
                 className={`flex items-center gap-2 px-4 py-3 border-b-2 transition cursor-pointer rounded-t-lg ${
                   tab === t.id
                     ? 'border-emerald-500 text-emerald-700 bg-emerald-50/50'
-                    : 'border-transparent hover:text-slate-900 hover:border-slate-200'
+                    : 'border-transparent hover:text-indigo-900 hover:border-slate-200'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -109,7 +109,7 @@ export function EmployeeDashboard() {
 
               {tab === 'home' && (
                 loading ? (
-                  <div className="flex flex-col items-center justify-center py-24 gap-3 text-slate-400">
+                  <div className="flex flex-col items-center justify-center py-24 gap-3 text-indigo-400">
                     <RefreshCw className="w-8 h-8 animate-spin text-emerald-500" />
                     <span className="text-sm font-semibold">Loading your workspace…</span>
                   </div>
@@ -123,9 +123,9 @@ export function EmployeeDashboard() {
                           {user?.name?.charAt(0) ?? 'E'}
                         </div>
                         <div>
-                          <h2 className="text-lg font-bold text-slate-900">{profile?.name ?? user?.name}</h2>
-                          <p className="text-xs text-slate-500 font-medium">{profile?.role}</p>
-                          <p className="text-xs text-slate-400 font-mono">{profile?.id}</p>
+                          <h2 className="text-lg font-bold text-indigo-900">{profile?.name ?? user?.name}</h2>
+                          <p className="text-xs text-indigo-500 font-medium">{profile?.role}</p>
+                          <p className="text-xs text-indigo-400 font-mono">{profile?.id}</p>
                         </div>
                       </div>
 
@@ -138,9 +138,9 @@ export function EmployeeDashboard() {
                           const Icon = row.icon;
                           return (
                             <div key={row.label} className="flex items-center gap-2.5 text-sm">
-                              <Icon className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                              <span className="text-slate-500 font-medium w-24">{row.label}</span>
-                              <span className="text-slate-800 font-semibold">{row.value ?? '—'}</span>
+                              <Icon className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+                              <span className="text-indigo-500 font-medium w-24">{row.label}</span>
+                              <span className="text-indigo-800 font-semibold">{row.value ?? '—'}</span>
                             </div>
                           );
                         })}
@@ -149,7 +149,7 @@ export function EmployeeDashboard() {
 
                     {/* Seat card */}
                     <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                      <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                      <h3 className="text-base font-bold text-indigo-900 mb-4 flex items-center gap-2">
                         <MapPin className="w-5 h-5 text-emerald-500" />
                         Your Desk
                       </h3>
@@ -167,15 +167,15 @@ export function EmployeeDashboard() {
 
                       {project && (
                         <div className="mt-4">
-                          <h3 className="text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
-                            <Briefcase className="w-4 h-4 text-slate-400" />
+                          <h3 className="text-sm font-bold text-indigo-700 mb-2 flex items-center gap-2">
+                            <Briefcase className="w-4 h-4 text-indigo-400" />
                             Project Assignment
                           </h3>
                           <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
                             <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: project.color }} />
                             <div>
-                              <p className="text-sm font-bold text-slate-900">{project.name}</p>
-                              <p className="text-xs text-slate-500">Lead: {project.lead}</p>
+                              <p className="text-sm font-bold text-indigo-900">{project.name}</p>
+                              <p className="text-xs text-indigo-500">Lead: {project.lead}</p>
                             </div>
                           </div>
                         </div>

@@ -219,7 +219,7 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
                 className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
                   selectedFloor === floor
                     ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                    : 'bg-slate-50 text-indigo-600 hover:bg-slate-100'
                 }`}
               >
                 Floor {floor}
@@ -236,7 +236,7 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
                 className={`w-10 h-10 flex items-center justify-center font-bold text-sm rounded-lg border transition-all duration-200 ${
                   selectedZone === zone
                     ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
-                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                    : 'bg-white text-indigo-600 border-slate-200 hover:bg-slate-50'
                 }`}
               >
                 {zone}
@@ -246,7 +246,7 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
 
           {/* Map Highlighting search bar */}
           <div className="relative w-full sm:w-60">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-indigo-400 pointer-events-none">
               <Search className="w-4 h-4" />
             </span>
             <input
@@ -260,7 +260,7 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
             {highlightTerm && (
               <button
                 onClick={() => setHighlightTerm('')}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-indigo-400 hover:text-indigo-600"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -269,7 +269,7 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
         </div>
 
         {/* Legend */}
-        <div className="bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs flex flex-wrap gap-4 items-center justify-center text-xs text-slate-500 font-sans">
+        <div className="bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs flex flex-wrap gap-4 items-center justify-center text-xs text-indigo-500 font-sans">
           <div className="flex items-center gap-1.5">
             <div className="w-3.5 h-3.5 rounded-sm bg-slate-100 border border-slate-200"></div>
             <span>Vacant Seat</span>
@@ -283,21 +283,21 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
             <span>Search Highlight</span>
           </div>
           <div className="flex items-center gap-1.5 ml-auto">
-            <Users className="w-3.5 h-3.5 text-slate-400" />
-            <span className="font-semibold text-slate-700">350 desks</span> in Zone {selectedZone}
+            <Users className="w-3.5 h-3.5 text-indigo-400" />
+            <span className="font-semibold text-indigo-700">350 desks</span> in Zone {selectedZone}
           </div>
         </div>
 
         {/* Seating Grid Stage */}
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 relative overflow-auto shadow-xs min-h-[460px] flex items-center justify-center">
           {loading ? (
-            <div className="flex flex-col items-center gap-3 text-slate-500 font-sans">
-              <RefreshCw className="w-8 h-8 animate-spin text-slate-400" />
+            <div className="flex flex-col items-center gap-3 text-indigo-500 font-sans">
+              <RefreshCw className="w-8 h-8 animate-spin text-indigo-400" />
               <span>Loading Layout Plans...</span>
             </div>
           ) : (
             <div className="flex flex-col gap-4">
-              <div className="text-center font-semibold text-xs text-slate-400 font-sans uppercase tracking-wider mb-2">
+              <div className="text-center font-semibold text-xs text-indigo-400 font-sans uppercase tracking-wider mb-2">
                 ZONE {selectedZone} FRONT DESKS / INGRESS PATHWAY
               </div>
               
@@ -322,7 +322,7 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
                           ? 'ring-2 ring-purple-400 bg-purple-50 ring-offset-1 z-10 animate-pulse text-purple-800'
                           : isOccupied 
                           ? 'bg-blue-100 hover:bg-blue-200 border border-blue-300 text-blue-700' 
-                          : 'bg-white hover:bg-slate-100 border border-slate-200 text-slate-400'
+                          : 'bg-white hover:bg-slate-100 border border-slate-200 text-indigo-400'
                       }`}
                       title={`${seat.id} ${isOccupied ? '(Occupied)' : '(Vacant)'}`}
                     >
@@ -339,7 +339,7 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
                 })}
               </div>
 
-              <div className="text-center font-semibold text-xs text-slate-400 font-sans uppercase tracking-wider mt-4">
+              <div className="text-center font-semibold text-xs text-indigo-400 font-sans uppercase tracking-wider mt-4">
                 ZONE {selectedZone} REAR WALL / SERVICE DUCTS
               </div>
             </div>
@@ -361,16 +361,16 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
               <div>
                 <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
                   <div>
-                    <h4 className="text-lg font-bold font-sans text-slate-900 flex items-center gap-2">
+                    <h4 className="text-lg font-bold font-sans text-indigo-900 flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
                       Seat {selectedSeat.id}
                     </h4>
-                    <p className="text-xs text-slate-500 font-mono mt-0.5">Floor {selectedSeat.floor} • Zone {selectedSeat.zone} • Desk {selectedSeat.number}</p>
+                    <p className="text-xs text-indigo-500 font-mono mt-0.5">Floor {selectedSeat.floor} • Zone {selectedSeat.zone} • Desk {selectedSeat.number}</p>
                   </div>
                   <button 
                     id="btn-close-seat-detail"
                     onClick={() => setSelectedSeat(null)}
-                    className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition"
+                    className="p-1.5 hover:bg-slate-100 rounded-lg text-indigo-400 hover:text-indigo-600 transition"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -386,22 +386,22 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
                             {seatEmployee.name.split(' ').map(n => n[0]).join('')}
                           </div>
                           <div>
-                            <h5 className="font-bold text-slate-900 text-sm leading-tight">{seatEmployee.name}</h5>
-                            <span className="text-xs text-slate-500 font-mono">{seatEmployee.id}</span>
+                            <h5 className="font-bold text-indigo-900 text-sm leading-tight">{seatEmployee.name}</h5>
+                            <span className="text-xs text-indigo-500 font-mono">{seatEmployee.id}</span>
                           </div>
                         </div>
 
-                        <div className="space-y-2.5 text-xs text-slate-600">
+                        <div className="space-y-2.5 text-xs text-indigo-600">
                           <div className="flex justify-between">
-                            <span className="text-slate-400 font-sans">Role</span>
-                            <span className="font-semibold text-slate-800 text-right">{seatEmployee.role}</span>
+                            <span className="text-indigo-400 font-sans">Role</span>
+                            <span className="font-semibold text-indigo-800 text-right">{seatEmployee.role}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-slate-400 font-sans">Department</span>
-                            <span className="font-semibold text-slate-800">{seatEmployee.department}</span>
+                            <span className="text-indigo-400 font-sans">Department</span>
+                            <span className="font-semibold text-indigo-800">{seatEmployee.department}</span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-slate-400 font-sans">Project Group</span>
+                            <span className="text-indigo-400 font-sans">Project Group</span>
                             <span 
                               className="px-2 py-0.5 rounded-md font-bold text-[10px]"
                               style={{ 
@@ -414,7 +414,7 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-slate-400 font-sans">Status</span>
+                            <span className="text-indigo-400 font-sans">Status</span>
                             <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                               seatEmployee.status === 'New Joiner' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
                             }`}>
@@ -422,8 +422,8 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-slate-400 font-sans">Joined Date</span>
-                            <span className="font-semibold text-slate-800">{seatEmployee.joinDate}</span>
+                            <span className="text-indigo-400 font-sans">Joined Date</span>
+                            <span className="font-semibold text-indigo-800">{seatEmployee.joinDate}</span>
                           </div>
                         </div>
 
@@ -432,7 +432,7 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
                             id={`btn-release-seat-${selectedSeat.id}`}
                             onClick={() => handleRelease(seatEmployee.id)}
                             disabled={assigningLoading}
-                            className="w-full py-2.5 bg-slate-50 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-700 hover:text-rose-700 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition"
+                            className="w-full py-2.5 bg-slate-50 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-indigo-700 hover:text-rose-700 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition"
                           >
                             Release Seat Assignment
                           </button>
@@ -441,24 +441,24 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
                     ) : (
                       <div className="flex flex-col items-center justify-center py-10 gap-2">
                         <div className="w-5 h-5 rounded-full border-2 border-slate-300 border-t-slate-600 animate-spin"></div>
-                        <span className="text-xs text-slate-400 font-sans">Loading occupant record...</span>
+                        <span className="text-xs text-indigo-400 font-sans">Loading occupant record...</span>
                       </div>
                     )}
                   </div>
                 ) : (
                   /* Vacant Seat Allocation Screen */
                   <div className="space-y-4">
-                    <div className="flex items-center gap-2.5 p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-xs text-slate-500">
-                      <AlertCircle className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                    <div className="flex items-center gap-2.5 p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-xs text-indigo-500">
+                      <AlertCircle className="w-4 h-4 text-indigo-400 flex-shrink-0" />
                       <span>This desk is vacant. You can assign it to any unallocated team member below.</span>
                     </div>
 
                     <div className="space-y-3">
-                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block font-sans">Select Employee</label>
+                      <label className="text-xs font-semibold text-indigo-500 uppercase tracking-wider block font-sans">Select Employee</label>
                       
                       {/* Embedded filter inside sidebar */}
                       <div className="relative">
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-indigo-400 pointer-events-none">
                           <Search className="w-3.5 h-3.5" />
                         </span>
                         <input
@@ -482,18 +482,18 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
                               className="w-full text-left p-2.5 hover:bg-blue-50/50 flex items-center justify-between text-xs transition"
                             >
                               <div className="pr-2 truncate">
-                                <div className="font-semibold text-slate-800 truncate">{emp.name}</div>
-                                <div className="text-slate-400 font-mono text-[10px] mt-0.5">{emp.id} • {emp.role}</div>
+                                <div className="font-semibold text-indigo-800 truncate">{emp.name}</div>
+                                <div className="text-indigo-400 font-mono text-[10px] mt-0.5">{emp.id} • {emp.role}</div>
                               </div>
                               <div className="flex-shrink-0">
-                                <span className="text-[10px] bg-slate-100 text-slate-600 border border-slate-200 px-1.5 py-0.5 rounded font-bold">
+                                <span className="text-[10px] bg-slate-100 text-indigo-600 border border-slate-200 px-1.5 py-0.5 rounded font-bold">
                                   {emp.projectCode || 'None'}
                                 </span>
                               </div>
                             </button>
                           ))
                         ) : (
-                          <div className="p-4 text-center text-xs text-slate-400 font-sans">
+                          <div className="p-4 text-center text-xs text-indigo-400 font-sans">
                             No unassigned employees found.
                           </div>
                         )}
@@ -503,7 +503,7 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
                 )}
               </div>
 
-              <div className="text-[10px] text-slate-400 text-center font-sans border-t border-slate-100 pt-3">
+              <div className="text-[10px] text-indigo-400 text-center font-sans border-t border-slate-100 pt-3">
                 Workspace allocations log instantly for corporate safety and auditing.
               </div>
             </motion.div>
@@ -515,11 +515,11 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
               exit={{ opacity: 0 }}
               className="bg-slate-50 border border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center text-center min-h-[500px]"
             >
-              <div className="w-12 h-12 rounded-xl bg-white border shadow-xs flex items-center justify-center text-slate-400 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-white border shadow-xs flex items-center justify-center text-indigo-400 mb-4">
                 <User className="w-6 h-6" />
               </div>
-              <h4 className="font-bold text-slate-800 text-sm">Select a desk to begin</h4>
-              <p className="text-xs text-slate-500 font-sans max-w-[200px] mt-2">
+              <h4 className="font-bold text-indigo-800 text-sm">Select a desk to begin</h4>
+              <p className="text-xs text-indigo-500 font-sans max-w-[200px] mt-2">
                 Click any desk slot in the seating layout grid to view workspace profiles, change allocations, or map teams.
               </p>
             </motion.div>

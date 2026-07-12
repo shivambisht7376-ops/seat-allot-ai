@@ -19,33 +19,33 @@ interface MetricCardProps {
   colorClass?: string;
 }
 
-export function MetricCard({ id, title, value, icon, subtitle, trend, colorClass = 'border-slate-200 text-slate-800' }: MetricCardProps) {
+export function MetricCard({ id, title, value, icon, subtitle, trend, colorClass = 'border-slate-200 text-indigo-800' }: MetricCardProps) {
   return (
     <motion.div
       id={id}
-      whileHover={{ y: -5, transition: { duration: 0.2 } }}
-      className={`glass-card glow-border rounded-xl p-6 flex flex-col justify-between h-36 ${colorClass}`}
+      whileHover={{ y: -3, transition: { duration: 0.2 } }}
+      className={`bg-white rounded-xl p-5 border shadow-xs flex flex-col justify-between h-36 ${colorClass}`}
     >
       <div className="flex justify-between items-start">
-        <span className="text-xs font-bold tracking-widest uppercase text-slate-400">
+        <span className="text-xs font-semibold tracking-wider uppercase text-indigo-500 font-sans">
           {title}
         </span>
-        <div className="p-2.5 bg-white/5 rounded-lg text-indigo-300 border border-white/10 shadow-inner">
+        <div className="p-2 bg-slate-50 rounded-lg text-indigo-600 border border-slate-100">
           {icon}
         </div>
       </div>
       
-      <div className="mt-2 relative z-10">
-        <h3 className="text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
+      <div className="mt-2">
+        <h3 className="text-2xl font-bold font-sans tracking-tight text-indigo-900">
           {value}
         </h3>
         
         <div className="flex items-center justify-between mt-1 text-xs">
-          <span className="text-slate-400 truncate pr-2 font-medium">
+          <span className="text-indigo-500 font-sans truncate pr-2">
             {subtitle}
           </span>
           {trend && (
-            <span className={`font-bold font-mono whitespace-nowrap px-1.5 py-0.5 rounded ${trend.isPositive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}`}>
+            <span className={`font-semibold font-mono whitespace-nowrap ${trend.isPositive ? 'text-emerald-600' : 'text-amber-600'}`}>
               {trend.value}
             </span>
           )}

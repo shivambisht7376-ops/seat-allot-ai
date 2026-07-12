@@ -99,7 +99,7 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
             id="stat-capacity"
             title="Desk Capacity"
             value={`${stats.occupiedSeats.toLocaleString()} / ${stats.totalSeats.toLocaleString()}`}
-            icon={<Building className="w-5 h-5 text-indigo-400" />}
+            icon={<Building className="w-5 h-5 text-blue-600" />}
             subtitle="Total physical workstations mapped"
             trend={{ value: `${stats.utilizationRate}% occupancy`, isPositive: stats.utilizationRate < 95 }}
           />
@@ -107,7 +107,7 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
             id="stat-roster"
             title="Total Roster"
             value={stats.totalEmployees.toLocaleString()}
-            icon={<Users className="w-5 h-5 text-emerald-400" />}
+            icon={<Users className="w-5 h-5 text-emerald-600" />}
             subtitle="Active employees in database"
             trend={{ value: `+${stats.newJoiners} joiners`, isPositive: true }}
           />
@@ -115,7 +115,7 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
             id="stat-joiners"
             title="Pending Allocation"
             value={stats.unassignedJoiners.toLocaleString()}
-            icon={<UserPlus className="w-5 h-5 text-amber-400" />}
+            icon={<UserPlus className="w-5 h-5 text-amber-600" />}
             subtitle="New joiners awaiting seat mapping"
             trend={{ value: `${Math.round((stats.unassignedJoiners / stats.totalEmployees) * 1000) / 10}% roster`, isPositive: stats.unassignedJoiners > 0 }}
           />
@@ -123,12 +123,12 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
             id="stat-vacancies"
             title="Available Vacancies"
             value={stats.vacantSeats.toLocaleString()}
-            icon={<AlertCircle className="w-5 h-5 text-purple-400" />}
+            icon={<AlertCircle className="w-5 h-5 text-purple-600" />}
             subtitle="Available hot-desks / physical slots"
           />
         </div>
       ) : (
-        <div className="p-8 text-center text-slate-400 glass-panel rounded-xl animate-pulse font-medium">
+        <div className="p-8 text-center text-indigo-400 bg-white border rounded-xl animate-pulse">
           Calculating spatial bento analytics...
         </div>
       )}
@@ -137,87 +137,35 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Status Donut */}
         {stats && (
-          <div className="glass-panel rounded-xl p-5 shadow-lg relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2 relative z-10">
-              <BarChart3 className="w-4 h-4 text-indigo-400" />
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <h4 className="text-sm font-bold text-indigo-900 mb-4 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-indigo-500" />
               Workforce Status
             </h4>
-            <div className="relative z-10">
-              <StatusDonutChart stats={stats} />
-            </div>
+            <StatusDonutChart stats={stats} />
           </div>
         )}
 
         {/* Project Headcount */}
-        <div className="glass-panel rounded-xl p-5 shadow-lg relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2 relative z-10">
-            <BarChart3 className="w-4 h-4 text-emerald-400" />
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+          <h4 className="text-sm font-bold text-indigo-900 mb-4 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-indigo-500" />
             Headcount by Project
           </h4>
-          <div className="relative z-10">
-            {projectHeadcount.length === 0 ? (
-              <div className="h-48 flex items-center justify-center text-slate-400 text-xs font-medium">Loading...</div>
-            ) : (
-              <ProjectHeadcountChart data={projectHeadcount} />
-            )}
-          </div>
+          {projectHeadcount.length > 0
+            ? <ProjectHeadcountChart data={projectHeadcount} />
+            : <p className="text-xs text-indigo-400 text-center py-8">Loading…</p>}
         </div>
 
-        {/* Seat Utilization Row-Based Bar Chart */}
-        <div className="glass-panel rounded-xl p-5 shadow-lg relative overflow-hidden group md:col-span-1 lg:col-span-1">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          <h4 className="text-sm font-bold text-white mb-6 flex items-center gap-2 relative z-10">
-            <BarChart3 className="w-4 h-4 text-amber-400" />
+        {/* Seat Utilization by zone */}
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+          <h4 className="text-sm font-bold text-indigo-900 mb-4 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-indigo-500" />
             Seat Utilization by Zone
           </h4>
-          <div className="space-y-6 relative z-10">
-            {floorUtilLoading ? (
-              <div className="h-48 flex items-center justify-center text-slate-400 text-xs font-medium">Loading map analytics...</div>
-            ) : (
-              [1, 2, 3, 4].map(floor => {
-                const floorAg = getFloorAggregated(floor);
-                return (
-                  <div key={floor} className="space-y-2">
-                    <div className="flex justify-between items-end mb-1">
-                      <span className="text-xs font-bold text-slate-300">F{floor}</span>
-                      <span className="text-[10px] text-slate-400 font-mono">{floorAg.rate}% avg</span>
-                    </div>
-                    {['A', 'B', 'C', 'D'].map(zone => {
-                      const key = `F${floor}-Z${zone}`;
-                      const zData = floorUtil[key];
-                      if (!zData) return null;
-                      
-                      // Using a consistent dark color palette for zones
-                      const bgMap: Record<string, string> = {
-                        'A': 'bg-indigo-500',
-                        'B': 'bg-sky-500',
-                        'C': 'bg-emerald-500',
-                        'D': 'bg-amber-500'
-                      };
-                      const bgColor = bgMap[zone];
-
-                      return (
-                        <div key={key} className="flex items-center gap-3 text-xs">
-                          <span className="w-5 text-right text-[10px] text-slate-500 font-mono">Z{zone}</span>
-                          <div className="flex-1 h-3.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
-                            <motion.div 
-                              initial={{ width: 0 }}
-                              animate={{ width: `${zData.rate}%` }}
-                              transition={{ duration: 1, ease: 'easeOut' }}
-                              className={`h-full ${bgColor} rounded-full`}
-                            />
-                          </div>
-                          <span className="w-8 text-[10px] text-slate-300 font-mono text-right">{zData.rate}%</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })
-            )}
-          </div>
+          {floorUtilLoading
+            ? <p className="text-xs text-indigo-400 text-center py-8">Loading…</p>
+            : <SeatUtilizationChart data={floorUtil} />}
         </div>
       </div>
 
@@ -228,14 +176,14 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
         <div className="lg:col-span-7 bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h4 className="text-base font-bold text-slate-900 font-sans">Workspace Density map</h4>
-              <p className="text-xs text-slate-500 font-sans mt-0.5">Real-time occupancy rates of corporate zones across all floor levels</p>
+              <h4 className="text-base font-bold text-indigo-900 font-sans">Workspace Density map</h4>
+              <p className="text-xs text-indigo-500 font-sans mt-0.5">Real-time occupancy rates of corporate zones across all floor levels</p>
             </div>
-            <Layers className="w-5 h-5 text-slate-400" />
+            <Layers className="w-5 h-5 text-indigo-400" />
           </div>
 
           {floorUtilLoading ? (
-            <div className="flex justify-center items-center py-20 gap-2 text-slate-400">
+            <div className="flex justify-center items-center py-20 gap-2 text-indigo-400">
               <RefreshCw className="w-5 h-5 animate-spin" />
               <span>Scanning spatial allocations...</span>
             </div>
@@ -247,8 +195,8 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
                 return (
                   <div key={floorNum} className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-100/50 transition duration-150">
                     <div className="space-y-0.5 min-w-[120px]">
-                      <h5 className="font-bold text-slate-900 text-sm">Floor Level {floorNum}</h5>
-                      <span className="text-[10px] text-slate-400 font-bold tracking-wider uppercase font-sans">Corporate Suites</span>
+                      <h5 className="font-bold text-indigo-900 text-sm">Floor Level {floorNum}</h5>
+                      <span className="text-[10px] text-indigo-400 font-bold tracking-wider uppercase font-sans">Corporate Suites</span>
                     </div>
 
                     {/* Zone detail grids inside a floor bar */}
@@ -263,8 +211,8 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
                             className="bg-white border border-slate-200 p-2 rounded-lg text-center font-sans shadow-2xs relative overflow-hidden"
                             title={`${key}: ${zoneData.occupied}/${zoneData.total} seated`}
                           >
-                            <span className="block font-bold text-slate-500 text-[10px] leading-tight">Zone {zone}</span>
-                            <span className="block font-semibold text-slate-900 text-xs mt-1 font-mono">{zoneData.rate}%</span>
+                            <span className="block font-bold text-indigo-500 text-[10px] leading-tight">Zone {zone}</span>
+                            <span className="block font-semibold text-indigo-900 text-xs mt-1 font-mono">{zoneData.rate}%</span>
                             
                             {/* Visual background indicator */}
                             <div 
@@ -280,8 +228,8 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
                     </div>
 
                     <div className="text-right min-w-[80px]">
-                      <span className="block font-extrabold text-slate-900 text-sm font-sans">{floorAgg.rate}%</span>
-                      <span className="block text-[10px] text-slate-400 font-mono mt-0.5">{floorAgg.occupied}/{floorAgg.total} desks</span>
+                      <span className="block font-extrabold text-indigo-900 text-sm font-sans">{floorAgg.rate}%</span>
+                      <span className="block text-[10px] text-indigo-400 font-mono mt-0.5">{floorAgg.occupied}/{floorAgg.total} desks</span>
                     </div>
                   </div>
                 );
@@ -296,13 +244,13 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
           {/* Audit Logs */}
           <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex-1 flex flex-col justify-between">
             <div>
-              <h4 className="text-base font-bold text-slate-900 font-sans mb-3.5 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-slate-700" />
+              <h4 className="text-base font-bold text-indigo-900 font-sans mb-3.5 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-indigo-700" />
                 Live Allocation Audit Log
               </h4>
 
               {logsLoading ? (
-                <div className="flex justify-center items-center py-12 gap-2 text-slate-400">
+                <div className="flex justify-center items-center py-12 gap-2 text-indigo-400">
                   <RefreshCw className="w-4 h-4 animate-spin" />
                   <span className="text-xs">Reading corporate audit logs...</span>
                 </div>
@@ -316,17 +264,17 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
                             ? 'bg-blue-100 text-blue-700' 
                             : log.action === 'release' 
                             ? 'bg-rose-100 text-rose-700' 
-                            : 'bg-slate-100 text-slate-600'
+                            : 'bg-slate-100 text-indigo-600'
                         }`}>
                           {log.action}
                         </span>
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <p className="text-slate-700 font-medium">
+                        <p className="text-indigo-700 font-medium">
                           {log.details}
                         </p>
-                        <div className="flex items-center gap-2 mt-1 text-[10px] text-slate-400 font-mono">
+                        <div className="flex items-center gap-2 mt-1 text-[10px] text-indigo-400 font-mono">
                           <span>{log.employeeName}</span>
                           <span>•</span>
                           <span>{new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -336,24 +284,24 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-10 text-slate-400 text-xs">
+                <div className="text-center py-10 text-indigo-400 text-xs">
                   No allocation events logged yet.
                 </div>
               )}
             </div>
 
-            <div className="text-[10px] text-slate-400 text-center font-sans border-t border-slate-150 pt-3 mt-4">
+            <div className="text-[10px] text-indigo-400 text-center font-sans border-t border-slate-150 pt-3 mt-4">
               Comprehensive event logging satisfies SOC-2 enterprise safety audits.
             </div>
           </div>
 
           {/* Admin Operations Box */}
           <div className="bg-slate-950 text-white rounded-xl p-5 shadow-lg border border-slate-800">
-            <h5 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+            <h5 className="font-bold text-xs uppercase tracking-wider text-indigo-400 mb-2 flex items-center gap-1.5">
               <Database className="w-4 h-4 text-blue-400" />
               Administrative Operations
             </h5>
-            <p className="text-xs text-slate-300 leading-relaxed">
+            <p className="text-xs text-indigo-300 leading-relaxed">
               Reset database indices and allocate custom mock suites of **5,000 corporate records** instantly. Ideal for evaluating layout mapping and analytics performance.
             </p>
             
@@ -361,7 +309,7 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
               id="btn-trigger-db-reset"
               onClick={handleResetSeeds}
               disabled={seedingLoading}
-              className="mt-4 w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-800 disabled:text-slate-500 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
+              className="mt-4 w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-800 disabled:text-indigo-500 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
             >
               {seedingLoading ? (
                 <RefreshCw className="w-4 h-4 animate-spin" />

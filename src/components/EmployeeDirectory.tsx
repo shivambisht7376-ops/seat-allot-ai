@@ -249,14 +249,14 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
       <div className="p-5 border-b border-slate-150">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h3 className="text-lg font-bold text-slate-900 font-sans">Corporate Directory</h3>
-            <p className="text-xs text-slate-500 font-sans mt-0.5">Manage details and assignments for {total.toLocaleString()} employees</p>
+            <h3 className="text-lg font-bold text-indigo-900 font-sans">Corporate Directory</h3>
+            <p className="text-xs text-indigo-500 font-sans mt-0.5">Manage details and assignments for {total.toLocaleString()} employees</p>
           </div>
           
           <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             {/* Search Input */}
             <div className="relative flex-1 sm:flex-none">
-              <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+              <Search className="w-4 h-4 absolute left-3 top-2.5 text-indigo-400" />
               <input 
                 type="text" 
                 placeholder="Search name, ID, or role..." 
@@ -270,7 +270,7 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
             <button
               id="btn-toggle-filters"
               onClick={() => setShowFilters(!showFilters)}
-              className={`p-2 border rounded-lg transition cursor-pointer ${showFilters ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
+              className={`p-2 border rounded-lg transition cursor-pointer ${showFilters ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-white border-slate-200 text-indigo-500 hover:bg-slate-50'}`}
               title="Advanced Filters"
             >
               <SlidersHorizontal className="w-4 h-4" />
@@ -292,12 +292,12 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
         {showFilters && (
           <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs font-sans">
             <div>
-              <label className="block font-bold text-slate-600 mb-1">Project Mapping</label>
+              <label className="block font-bold text-indigo-600 mb-1">Project Mapping</label>
               <select
                 id="filter-project"
                 value={selectedProject}
                 onChange={(e) => { setSelectedProject(e.target.value); setOffset(0); }}
-                className="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full bg-white border border-slate-200 rounded-lg p-2 text-indigo-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
                 <option value="">All Projects</option>
                 {projects.map(p => (
@@ -307,12 +307,12 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
             </div>
 
             <div>
-              <label className="block font-bold text-slate-600 mb-1">Floor Level</label>
+              <label className="block font-bold text-indigo-600 mb-1">Floor Level</label>
               <select
                 id="filter-floor"
                 value={selectedFloor}
                 onChange={(e) => { setSelectedFloor(e.target.value); setOffset(0); }}
-                className="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full bg-white border border-slate-200 rounded-lg p-2 text-indigo-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
                 <option value="">All Floors</option>
                 <option value="1">Floor 1</option>
@@ -323,12 +323,12 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
             </div>
 
             <div>
-              <label className="block font-bold text-slate-600 mb-1">Zone Letter</label>
+              <label className="block font-bold text-indigo-600 mb-1">Zone Letter</label>
               <select
                 id="filter-zone"
                 value={selectedZone}
                 onChange={(e) => { setSelectedZone(e.target.value); setOffset(0); }}
-                className="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full bg-white border border-slate-200 rounded-lg p-2 text-indigo-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
                 <option value="">All Zones</option>
                 <option value="A">Zone A</option>
@@ -339,7 +339,7 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
             </div>
 
             <div className="flex items-center pt-5">
-              <label className="flex items-center gap-2 cursor-pointer font-bold text-slate-600">
+              <label className="flex items-center gap-2 cursor-pointer font-bold text-indigo-600">
                 <input
                   type="checkbox"
                   id="filter-unassigned"
@@ -356,8 +356,8 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
 
       {/* Roster Table */}
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-left text-sm text-slate-700">
-          <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] tracking-wider font-sans border-b border-slate-150">
+        <table className="w-full border-collapse text-left text-sm text-indigo-700">
+          <thead className="bg-slate-50 text-indigo-500 uppercase font-bold text-[10px] tracking-wider font-sans border-b border-slate-150">
             <tr>
               <th className="px-6 py-3.5">Employee ID</th>
               <th className="px-6 py-3.5">Full Name / Email</th>
@@ -371,9 +371,9 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
           <tbody className="divide-y divide-slate-100">
             {loading ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
+                <td colSpan={7} className="px-6 py-12 text-center text-indigo-400">
                   <div className="flex items-center justify-center gap-2.5">
-                    <RefreshCw className="w-5 h-5 animate-spin text-slate-400" />
+                    <RefreshCw className="w-5 h-5 animate-spin text-indigo-400" />
                     <span>Querying enterprise directory...</span>
                   </div>
                 </td>
@@ -386,14 +386,14 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
                   className="hover:bg-slate-50/50 transition duration-150 cursor-pointer"
                   onClick={() => setEditingEmployee(emp)}
                 >
-                  <td className="px-6 py-4 font-mono font-semibold text-xs text-slate-500">{emp.id}</td>
+                  <td className="px-6 py-4 font-mono font-semibold text-xs text-indigo-500">{emp.id}</td>
                   <td className="px-6 py-4">
-                    <div className="font-bold text-slate-900 leading-tight">{emp.name}</div>
-                    <div className="text-xs text-slate-400 mt-0.5">{emp.email}</div>
+                    <div className="font-bold text-indigo-900 leading-tight">{emp.name}</div>
+                    <div className="text-xs text-indigo-400 mt-0.5">{emp.email}</div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-slate-800 font-medium">{emp.role}</div>
-                    <div className="text-xs text-slate-400 mt-0.5">{emp.department}</div>
+                    <div className="text-indigo-800 font-medium">{emp.role}</div>
+                    <div className="text-xs text-indigo-400 mt-0.5">{emp.department}</div>
                   </td>
                   <td className="px-6 py-4">
                     {emp.projectCode ? (
@@ -401,12 +401,12 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
                         {emp.projectCode}
                       </span>
                     ) : (
-                      <span className="text-xs text-slate-400 italic">Unassigned</span>
+                      <span className="text-xs text-indigo-400 italic">Unassigned</span>
                     )}
                   </td>
                   <td className="px-6 py-4 font-mono text-xs">
                     {emp.seatId ? (
-                      <span className="text-slate-800 font-bold bg-slate-100 border border-slate-200 px-2 py-1 rounded">
+                      <span className="text-indigo-800 font-bold bg-slate-100 border border-slate-200 px-2 py-1 rounded">
                         {emp.seatId}
                       </span>
                     ) : (
@@ -421,7 +421,7 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
                         ? 'bg-emerald-100 text-emerald-800' 
                         : emp.status === 'New Joiner' 
                         ? 'bg-amber-100 text-amber-800' 
-                        : 'bg-slate-150 text-slate-600'
+                        : 'bg-slate-150 text-indigo-600'
                     }`}>
                       {emp.status}
                     </span>
@@ -433,7 +433,7 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
                           id={`release-seat-btn-${emp.id}`}
                           onClick={() => handleReleaseSeat(emp.id)}
                           title="Release assigned seat"
-                          className="p-1.5 border border-slate-200 text-slate-500 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-100 rounded-lg transition"
+                          className="p-1.5 border border-slate-200 text-indigo-500 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-100 rounded-lg transition"
                         >
                           <UserMinus className="w-4 h-4" />
                         </button>
@@ -441,7 +441,7 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
                       <button
                         id={`edit-profile-btn-${emp.id}`}
                         onClick={() => setEditingEmployee(emp)}
-                        className="px-2.5 py-1.5 border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-lg text-xs font-semibold"
+                        className="px-2.5 py-1.5 border border-slate-200 hover:bg-slate-50 text-indigo-600 rounded-lg text-xs font-semibold"
                       >
                         Profile
                       </button>
@@ -471,7 +471,7 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-slate-400 font-sans">
+                <td colSpan={7} className="px-6 py-12 text-center text-indigo-400 font-sans">
                   No employee match found in enterprise directory. Try broad searches.
                 </td>
               </tr>
@@ -482,8 +482,8 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
 
       {/* Pagination Controls */}
       <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between font-sans text-xs">
-        <span className="text-slate-500 font-medium">
-          Showing <span className="font-bold text-slate-800">{offset + 1}</span> to <span className="font-bold text-slate-800">{Math.min(offset + limit, total)}</span> of <span className="font-bold text-slate-800">{total.toLocaleString()}</span> employees
+        <span className="text-indigo-500 font-medium">
+          Showing <span className="font-bold text-indigo-800">{offset + 1}</span> to <span className="font-bold text-indigo-800">{Math.min(offset + limit, total)}</span> of <span className="font-bold text-indigo-800">{total.toLocaleString()}</span> employees
         </span>
         
         <div className="flex gap-1.5">
@@ -491,12 +491,12 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
             id="btn-prev-page"
             onClick={() => handlePageChange(offset - limit)}
             disabled={offset === 0}
-            className="p-1.5 border border-slate-200 rounded-lg hover:bg-white bg-slate-50 text-slate-500 disabled:opacity-50 transition cursor-pointer"
+            className="p-1.5 border border-slate-200 rounded-lg hover:bg-white bg-slate-50 text-indigo-500 disabled:opacity-50 transition cursor-pointer"
           >
             <ChevronLeft className="w-4.5 h-4.5" />
           </button>
           
-          <div className="px-3 py-1.5 border border-slate-200 rounded-lg bg-white font-bold text-slate-700 font-sans">
+          <div className="px-3 py-1.5 border border-slate-200 rounded-lg bg-white font-bold text-indigo-700 font-sans">
             Page {currentPage} of {totalPages}
           </div>
 
@@ -504,7 +504,7 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
             id="btn-next-page"
             onClick={() => handlePageChange(offset + limit)}
             disabled={offset + limit >= total}
-            className="p-1.5 border border-slate-200 rounded-lg hover:bg-white bg-slate-50 text-slate-500 disabled:opacity-50 transition cursor-pointer"
+            className="p-1.5 border border-slate-200 rounded-lg hover:bg-white bg-slate-50 text-indigo-500 disabled:opacity-50 transition cursor-pointer"
           >
             <ChevronRight className="w-4.5 h-4.5" />
           </button>
@@ -518,7 +518,7 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
             <button
               id="btn-close-editing-modal"
               onClick={() => setEditingEmployee(null)}
-              className="absolute top-4 right-4 p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition"
+              className="absolute top-4 right-4 p-1.5 hover:bg-slate-100 rounded-lg text-indigo-400 hover:text-indigo-600 transition"
             >
               <XIcon className="w-5 h-5" />
             </button>
@@ -528,30 +528,30 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
                 {editingEmployee.name.split(' ').map(n => n[0]).join('')}
               </div>
               <div>
-                <h4 className="text-base font-extrabold text-slate-900">{editingEmployee.name}</h4>
-                <p className="text-xs font-mono text-slate-400">{editingEmployee.id} • Joined: {editingEmployee.joinDate}</p>
+                <h4 className="text-base font-extrabold text-indigo-900">{editingEmployee.name}</h4>
+                <p className="text-xs font-mono text-indigo-400">{editingEmployee.id} • Joined: {editingEmployee.joinDate}</p>
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-xs font-sans">
                 <div>
-                  <label className="text-slate-400 block mb-0.5">Title / Role</label>
-                  <span className="font-bold text-slate-800 text-sm block">{editingEmployee.role}</span>
+                  <label className="text-indigo-400 block mb-0.5">Title / Role</label>
+                  <span className="font-bold text-indigo-800 text-sm block">{editingEmployee.role}</span>
                 </div>
                 <div>
-                  <label className="text-slate-400 block mb-0.5">Department</label>
-                  <span className="font-bold text-slate-800 text-sm block">{editingEmployee.department}</span>
+                  <label className="text-indigo-400 block mb-0.5">Department</label>
+                  <span className="font-bold text-indigo-800 text-sm block">{editingEmployee.department}</span>
                 </div>
               </div>
 
               <div>
-                <label className="text-slate-400 text-xs block mb-1 font-sans">Current Seating Desk</label>
+                <label className="text-indigo-400 text-xs block mb-1 font-sans">Current Seating Desk</label>
                 {editingEmployee.seatId ? (
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200 font-mono text-xs mb-2">
                     <div>
-                      <span className="font-bold text-slate-800">{editingEmployee.seatId}</span>
-                      <span className="text-slate-400 text-[10px] ml-2 font-sans">(Physical Slot Allocated)</span>
+                      <span className="font-bold text-indigo-800">{editingEmployee.seatId}</span>
+                      <span className="text-indigo-400 text-[10px] ml-2 font-sans">(Physical Slot Allocated)</span>
                     </div>
                     <button
                       id={`modal-release-btn-${editingEmployee.id}`}
@@ -593,13 +593,13 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
               </div>
 
               <div>
-                <label className="text-slate-400 text-xs block mb-1 font-sans">Update Project Assignment</label>
+                <label className="text-indigo-400 text-xs block mb-1 font-sans">Update Project Assignment</label>
                 <select
                   id="modal-update-project-select"
                   value={editingEmployee.projectCode || ''}
                   disabled={updateProjectLoading}
                   onChange={(e) => handleUpdateProject(editingEmployee.id, e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs font-semibold text-indigo-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="">Unassigned (General Pool)</option>
                   {projects.map(p => (
@@ -626,36 +626,36 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
       {isAddingEmployee && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fade-in">
           <div className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-sm w-full p-6 relative">
-            <button onClick={() => setIsAddingEmployee(false)} className="absolute top-4 right-4 p-1.5 hover:bg-slate-100 rounded-lg text-slate-400">
+            <button onClick={() => setIsAddingEmployee(false)} className="absolute top-4 right-4 p-1.5 hover:bg-slate-100 rounded-lg text-indigo-400">
               <XIcon className="w-5 h-5" />
             </button>
-            <h4 className="font-extrabold text-slate-900 mb-4 text-lg">Onboard Employee</h4>
+            <h4 className="font-extrabold text-indigo-900 mb-4 text-lg">Onboard Employee</h4>
             <form onSubmit={handleAddEmployeeSubmit} className="space-y-4 text-xs font-sans">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Full Name</label>
+                <label className="block font-bold text-indigo-700 mb-1">Full Name</label>
                 <input required type="text" value={addName} onChange={e => setAddName(e.target.value)} placeholder="John Doe" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Email</label>
+                <label className="block font-bold text-indigo-700 mb-1">Email</label>
                 <input required type="email" value={addEmail} onChange={e => setAddEmail(e.target.value)} placeholder="john@enterprise.com" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-blue-500" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Role</label>
+                  <label className="block font-bold text-indigo-700 mb-1">Role</label>
                   <input required type="text" value={addRole} onChange={e => setAddRole(e.target.value)} placeholder="Developer" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-blue-500" />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Department</label>
+                  <label className="block font-bold text-indigo-700 mb-1">Department</label>
                   <input required type="text" value={addDepartment} onChange={e => setAddDepartment(e.target.value)} placeholder="Engineering" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-blue-500" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Join Date</label>
+                  <label className="block font-bold text-indigo-700 mb-1">Join Date</label>
                   <input required type="date" value={addJoinDate} onChange={e => setAddJoinDate(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-blue-500" />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Project Code</label>
+                  <label className="block font-bold text-indigo-700 mb-1">Project Code</label>
                   <select value={addProjectCode} onChange={e => setAddProjectCode(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-blue-500">
                     <option value="">Unassigned</option>
                     {projects.map(p => (

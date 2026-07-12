@@ -17,7 +17,7 @@ const ZONE_COLORS = ['#4f46e5','#0ea5e9','#10b981','#f59e0b'];
 
 export function SeatUtilizationChart({ data }: Props) {
   if (!data || Object.keys(data).length === 0) {
-    return <div className="flex items-center justify-center h-40 text-slate-400 text-sm">No data yet</div>;
+    return <div className="flex items-center justify-center h-40 text-indigo-400 text-sm">No data yet</div>;
   }
 
   // Build per-floor groups

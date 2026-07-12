@@ -15,7 +15,7 @@ interface Props {
 
 export function ProjectHeadcountChart({ data }: Props) {
   if (!data || data.length === 0) {
-    return <div className="flex items-center justify-center h-40 text-slate-400 text-sm">No projects yet</div>;
+    return <div className="flex items-center justify-center h-40 text-indigo-400 text-sm">No projects yet</div>;
   }
 
   const sorted  = [...data].sort((a, b) => b.count - a.count).slice(0, 12);
@@ -38,15 +38,15 @@ export function ProjectHeadcountChart({ data }: Props) {
           return (
             <g key={p.code}>
               {/* Project name */}
-              <text x={0} y={y + BAR_H * 0.72} fontSize={9.5} fill="#94a3b8" fontWeight={500} textAnchor="start">
+              <text x={0} y={y + BAR_H * 0.72} fontSize={9.5} fill="#475569" fontWeight={500} textAnchor="start">
                 {shortName}
               </text>
               {/* Track */}
-              <rect x={LEFT} y={y} width={WIDTH - LEFT - RIGHT} height={BAR_H} rx={5} fill="rgba(255,255,255,0.05)" />
+              <rect x={LEFT} y={y} width={WIDTH - LEFT - RIGHT} height={BAR_H} rx={5} fill="#f1f5f9" />
               {/* Bar */}
               <rect x={LEFT} y={y} width={barW} height={BAR_H} rx={5} fill={p.color} opacity={0.8} />
               {/* Count */}
-              <text x={LEFT + (WIDTH - LEFT - RIGHT) + 6} y={y + BAR_H * 0.72} fontSize={9.5} fill="#e2e8f0" fontWeight={700}>
+              <text x={LEFT + (WIDTH - LEFT - RIGHT) + 6} y={y + BAR_H * 0.72} fontSize={9.5} fill="#334155" fontWeight={700}>
                 {p.count}
               </text>
             </g>

@@ -57,13 +57,13 @@ export function HRDashboard() {
               <Building2 className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="font-extrabold text-sm text-slate-900 block">Seat Allot AI</span>
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">HR Portal</span>
+              <span className="font-extrabold text-sm text-indigo-900 block">Seat Allot AI</span>
+              <span className="text-[10px] text-indigo-400 font-semibold uppercase tracking-wider block">HR Portal</span>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <button onClick={fetchGlobal} className="p-1.5 border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-slate-600 transition cursor-pointer">
+            <button onClick={fetchGlobal} className="p-1.5 border border-slate-200 hover:bg-slate-50 rounded-lg text-indigo-400 hover:text-indigo-600 transition cursor-pointer">
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-sky-500' : ''}`} />
             </button>
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-sky-50 border border-sky-200 rounded-lg">
@@ -71,7 +71,7 @@ export function HRDashboard() {
               <span className="text-xs font-bold text-sky-700">{user?.name}</span>
               <span className="text-[9px] bg-sky-100 text-sky-600 px-1.5 py-0.5 rounded-full font-bold">HR</span>
             </div>
-            <button onClick={logout} className="p-1.5 border border-slate-200 hover:bg-red-50 hover:border-red-200 rounded-lg text-slate-400 hover:text-red-500 transition cursor-pointer" title="Sign out">
+            <button onClick={logout} className="p-1.5 border border-slate-200 hover:bg-red-50 hover:border-red-200 rounded-lg text-indigo-400 hover:text-red-500 transition cursor-pointer" title="Sign out">
               <LogOut className="w-4 h-4" />
             </button>
           </div>
@@ -81,7 +81,7 @@ export function HRDashboard() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex flex-col gap-6">
 
         {/* Tab Bar */}
-        <div className="border-b border-slate-200 flex flex-wrap gap-1 text-sm font-semibold text-slate-500 pb-px">
+        <div className="border-b border-slate-200 flex flex-wrap gap-1 text-sm font-semibold text-indigo-500 pb-px">
           {TABS.map(t => {
             const Icon = t.icon;
             return (
@@ -92,7 +92,7 @@ export function HRDashboard() {
                 className={`flex items-center gap-2 px-4 py-3 border-b-2 transition cursor-pointer rounded-t-lg ${
                   tab === t.id
                     ? 'border-sky-500 text-sky-700 bg-sky-50/50'
-                    : 'border-transparent hover:text-slate-900 hover:border-slate-200'
+                    : 'border-transparent hover:text-indigo-900 hover:border-slate-200'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -112,7 +112,7 @@ export function HRDashboard() {
           <AnimatePresence mode="wait">
             {loading ? (
               <motion.div key="load" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="flex flex-col items-center justify-center py-24 gap-3 text-slate-400">
+                className="flex flex-col items-center justify-center py-24 gap-3 text-indigo-400">
                 <RefreshCw className="w-8 h-8 animate-spin text-sky-500" />
                 <span className="text-sm font-semibold">Loading HR portal…</span>
               </motion.div>

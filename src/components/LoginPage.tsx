@@ -109,12 +109,12 @@ export function LoginPage() {
           transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
         >
           <div className="glass-card rounded-3xl p-8">
-            <h3 className="text-xl font-bold text-slate-900 mb-1">Welcome back</h3>
-            <p className="text-sm text-slate-500 mb-6">Sign in to your workspace</p>
+            <h3 className="text-xl font-bold text-indigo-900 mb-1">Welcome back</h3>
+            <p className="text-sm text-indigo-500 mb-6">Sign in to your workspace</p>
 
             {/* Demo Account Chips */}
             <div className="mb-6">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+              <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-3">
                 Quick demo login
               </p>
               <div className="space-y-2">
@@ -132,14 +132,14 @@ export function LoginPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-slate-800">{acc.role}</span>
+                          <span className="text-xs font-bold text-indigo-800">{acc.role}</span>
                           <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${acc.badge}`}>
                             {acc.desc}
                           </span>
                         </div>
-                        <span className="text-[10px] text-slate-500 font-mono block truncate">{acc.email}</span>
+                        <span className="text-[10px] text-indigo-500 font-mono block truncate">{acc.email}</span>
                       </div>
-                      <span className="text-[10px] text-slate-400 font-semibold group-hover:text-slate-600 transition">
+                      <span className="text-[10px] text-indigo-400 font-semibold group-hover:text-indigo-600 transition">
                         Fill ↗
                       </span>
                     </button>
@@ -153,14 +153,14 @@ export function LoginPage() {
                 <div className="w-full border-t border-slate-200" />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="bg-white px-3 text-slate-400 font-medium">or enter manually</span>
+                <span className="bg-white px-3 text-indigo-400 font-medium">or enter manually</span>
               </div>
             </div>
 
             {/* Login Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email address</label>
+                <label className="block text-xs font-semibold text-indigo-700 mb-1.5">Email address</label>
                 <input
                   id="login-email"
                   type="email"
@@ -174,7 +174,7 @@ export function LoginPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Password</label>
+                <label className="block text-xs font-semibold text-indigo-700 mb-1.5">Password</label>
                 <div className="relative">
                   <input
                     id="login-password"
@@ -189,7 +189,7 @@ export function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPass(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-400 hover:text-indigo-600 transition"
                   >
                     {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>

@@ -124,7 +124,7 @@ I can help you query, search, and manage our database of **3,000 employees** and
           </div>
           <div>
             <h4 className="text-sm font-bold font-sans">AI Workspace Assistant</h4>
-            <div className="flex items-center gap-1 mt-0.5 text-[10px] text-slate-300 font-medium">
+            <div className="flex items-center gap-1 mt-0.5 text-[10px] text-indigo-300 font-medium">
               <Sparkles className="w-3 h-3 text-blue-400" />
               <span>Powered by Gemini Flash</span>
             </div>
@@ -135,7 +135,7 @@ I can help you query, search, and manage our database of **3,000 employees** and
           <button
             onClick={() => setMessages([WELCOME])}
             title="Clear chat"
-            className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition"
+            className="p-1.5 hover:bg-slate-800 rounded-lg text-indigo-400 hover:text-white transition"
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -156,15 +156,15 @@ I can help you query, search, and manage our database of **3,000 employees** and
                   msg.sender === 'user'
                     ? 'bg-slate-900 text-white border-slate-900 rounded-br-xs'
                     : msg.isAction
-                    ? 'bg-blue-50 text-slate-800 border-blue-150 rounded-bl-xs'
-                    : 'bg-white text-slate-800 border-slate-150 rounded-bl-xs'
+                    ? 'bg-blue-50 text-indigo-800 border-blue-150 rounded-bl-xs'
+                    : 'bg-white text-indigo-800 border-slate-150 rounded-bl-xs'
                 }`}
               >
                 {/* Custom renderer for basic Markdown styles */}
                 <div className="prose prose-sm font-sans space-y-2 leading-relaxed">
                   {msg.text.split('\n').map((line, idx) => {
                     if (line.startsWith('### ')) {
-                      return <h5 key={idx} className="font-bold text-slate-900 text-sm mt-2 mb-1">{line.substring(4)}</h5>;
+                      return <h5 key={idx} className="font-bold text-indigo-900 text-sm mt-2 mb-1">{line.substring(4)}</h5>;
                     }
                     if (line.startsWith('* **') || line.startsWith('- **')) {
                       // Bullet bold list
@@ -174,20 +174,20 @@ I can help you query, search, and manage our database of **3,000 employees** and
                         <div key={idx} className="flex gap-1.5 ml-2">
                           <span className="text-blue-500 font-bold">•</span>
                           <span>
-                            <strong className="text-slate-900">{parts[0]}</strong>: {parts.slice(1).join(':')}
+                            <strong className="text-indigo-900">{parts[0]}</strong>: {parts.slice(1).join(':')}
                           </span>
                         </div>
                       );
                     }
                     if (line.startsWith('* ') || line.startsWith('- ')) {
                       return (
-                        <div key={idx} className="flex gap-1.5 ml-2 text-slate-600">
-                          <span className="text-slate-400 font-bold">•</span>
+                        <div key={idx} className="flex gap-1.5 ml-2 text-indigo-600">
+                          <span className="text-indigo-400 font-bold">•</span>
                           <span>{line.substring(2)}</span>
                         </div>
                       );
                     }
-                    return <p key={idx} className="text-slate-700">{line}</p>;
+                    return <p key={idx} className="text-indigo-700">{line}</p>;
                   })}
                 </div>
               </div>
@@ -200,7 +200,7 @@ I can help you query, search, and manage our database of **3,000 employees** and
                       key={i}
                       id={`suggest-btn-${i}`}
                       onClick={() => handleQuerySubmit(s)}
-                      className="px-2.5 py-1 bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-200 text-slate-600 hover:text-blue-700 rounded-full text-[10px] font-semibold transition"
+                      className="px-2.5 py-1 bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-200 text-indigo-600 hover:text-blue-700 rounded-full text-[10px] font-semibold transition"
                     >
                       {s}
                     </button>
@@ -241,7 +241,7 @@ I can help you query, search, and manage our database of **3,000 employees** and
           id="btn-send-assistant"
           onClick={() => handleQuerySubmit(query)}
           disabled={!query.trim() || loading}
-          className="p-2.5 bg-slate-900 hover:bg-blue-600 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-xl shadow-xs transition-all cursor-pointer flex-shrink-0"
+          className="p-2.5 bg-slate-900 hover:bg-blue-600 disabled:bg-slate-100 disabled:text-indigo-400 text-white rounded-xl shadow-xs transition-all cursor-pointer flex-shrink-0"
         >
           <Send className="w-4 h-4" />
         </button>
