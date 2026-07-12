@@ -56,7 +56,7 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
   // Load currently seated employee when a seat is clicked
   useEffect(() => {
     if (selectedSeat && selectedSeat.employeeId) {
-      fetch(`/api/employees/${selectedSeat.employeeId}`)
+      fetch(`/api/employees/${selectedSeat.employeeId}`, { headers: authHeader as any })
         .then(res => res.json())
         .then(data => setSeatEmployee(data))
         .catch(() => setSeatEmployee(null));
@@ -71,7 +71,7 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
   // Load list of unassigned employees for seat assignment dropdown
   const loadUnassignedEmployees = async () => {
     try {
-      const res = await fetch(`/api/employees?limit=30&isUnassigned=true&textSearch=${assignSearch}`);
+      const res = await fetch(`/api/employees?limit=30&isUnassigned=true&textSearch=${assignSearch}`, { headers: authHeader as any });
       if (res.ok) {
         const result = await res.json();
         setUnassignedList(result.data);
@@ -94,7 +94,7 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
     try {
       const res = await fetch('/api/seats/allocate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(authHeader as any) },
         body: JSON.stringify({ employeeId: empId, seatId: selectedSeat.id })
       });
       if (res.ok) {
@@ -251,7 +251,7 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
               </div>
               
               {/* Desks Grid: 14 rows, 25 columns */}
-              <div className="grid grid-cols-25 gap-2.5 max-w-[700px]">
+              <div className="grid grid-cols-25 gap-1.5 w-max">
                 {seats.map((seat, index) => {
                   const isOccupied = seat.employeeId !== null;
                   const isHighlighted = matchesHighlight(seat);
@@ -264,7 +264,7 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
                       whileHover={{ scale: 1.15, zIndex: 10 }}
                       transition={{ type: 'spring', stiffness: 400, damping: 15 }}
                       onClick={() => setSelectedSeat(seat)}
-                      className={`w-5.5 h-5.5 rounded-md flex items-center justify-center text-[8px] font-bold cursor-pointer relative transition-all ${
+                      className={`w-[42px] h-[24px] rounded-sm flex items-center justify-center text-[7px] font-bold cursor-pointer relative transition-all ${
                         isSelected 
                           ? 'ring-2 ring-blue-600 ring-offset-2 z-20 scale-110'
                           : isHighlighted 
@@ -278,11 +278,11 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
                       {/* Visual Project Accent Border for occupied seats */}
                       {isOccupied && (
                         <div 
-                          className="absolute bottom-0 left-0 right-0 h-1.5 rounded-b-md"
+                          className="absolute bottom-0 left-0 right-0 h-1.5 rounded-b-sm"
                           style={{ backgroundColor: getProjectColor(seat.employeeId) }}
                         />
                       )}
-                      {seat.number}
+                      {seat.id}
                     </motion.button>
                   );
                 })}
