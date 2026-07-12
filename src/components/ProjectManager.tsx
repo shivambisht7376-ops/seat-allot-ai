@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Briefcase, RefreshCw, Layers, CheckCircle, AlertTriangle, Sparkles, Edit2, Users, XIcon, Search } from 'lucide-react';
+import { Plus, Briefcase, RefreshCw, Layers, CheckCircle, AlertTriangle, Sparkles, Edit2, Users, X, Search } from 'lucide-react';
 import { Project, Employee } from '../types.js';
 import { useAuthHeader } from '../context/AuthContext.js';
 
@@ -447,7 +447,7 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fade-in">
           <div className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-sm w-full p-6 relative">
             <button onClick={() => setEditingProject(null)} className="absolute top-4 right-4 p-1.5 hover:bg-slate-100 rounded-lg text-slate-400">
-              <XIcon className="w-5 h-5" />
+              <X className="w-5 h-5" />
             </button>
             <h4 className="font-extrabold text-slate-900 mb-4 text-lg">Edit Project</h4>
             <form onSubmit={handleEditSubmit} className="space-y-4 text-xs font-sans">
@@ -480,7 +480,7 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fade-in">
           <div className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-lg w-full p-6 relative flex flex-col max-h-[80vh]">
             <button onClick={() => setManagingTeamProject(null)} className="absolute top-4 right-4 p-1.5 hover:bg-slate-100 rounded-lg text-slate-400">
-              <XIcon className="w-5 h-5" />
+              <X className="w-5 h-5" />
             </button>
             <h4 className="font-extrabold text-slate-900 mb-1 text-lg">Assign Team to {managingTeamProject.code}</h4>
             <p className="text-xs text-slate-500 mb-4">Select unassigned employees to add to this project.</p>

@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Search, ChevronLeft, ChevronRight, UserMinus, Plus, UserCheck, SlidersHorizontal, RefreshCw, AlertCircle, UserX, Briefcase } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, UserMinus, Plus, UserCheck, SlidersHorizontal, RefreshCw, AlertCircle, UserX, Briefcase, UserPlus } from 'lucide-react';
 import { Employee, Project } from '../types.js';
 import { useAuthHeader } from '../context/AuthContext.js';
 
