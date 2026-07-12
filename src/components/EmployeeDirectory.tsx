@@ -139,6 +139,18 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
     } catch (err) { console.error(err); }
   };
 
+  const handleDelete = async (empId: string, empName: string) => {
+    if (!confirm(`WARNING: Completely delete employee record for ${empName}? This action cannot be undone.`)) return;
+    try {
+      const res = await fetch(`/api/employees/${empId}`, {
+        method: 'DELETE',
+        headers: { ...(authHeader as any) }
+      });
+      if (res.ok) { fetchEmployees(); onStatsChanged(); setEditingEmployee(null); }
+      else { const d = await res.json(); alert(d.error ?? 'Failed to delete.'); }
+    } catch (err) { console.error(err); }
+  };
+
   const handleUpdateProject = async (empId: string, projCode: string) => {
     setUpdateProjectLoading(true);
     try {
@@ -437,10 +449,20 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
                         <button
                           id={`btn-terminate-${emp.id}`}
                           onClick={() => handleTerminate(emp.id, emp.name)}
-                          className="px-2.5 py-1.5 border border-red-200 hover:bg-red-50 text-red-600 rounded-lg text-xs font-semibold flex items-center gap-1"
+                          className="px-2.5 py-1.5 border border-amber-200 hover:bg-amber-50 text-amber-600 rounded-lg text-xs font-semibold flex items-center gap-1"
+                          title="Mark Resigned"
                         >
                           <UserX className="w-3 h-3" />
-                          Terminate
+                        </button>
+                      )}
+                      {canDelete && (
+                        <button
+                          id={`btn-delete-${emp.id}`}
+                          onClick={() => handleDelete(emp.id, emp.name)}
+                          className="px-2.5 py-1.5 border border-red-200 hover:bg-red-50 text-red-600 rounded-lg text-xs font-semibold flex items-center gap-1"
+                          title="Permanently Delete"
+                        >
+                          <UserMinus className="w-3 h-3" />
                         </button>
                       )}
                     </div>
