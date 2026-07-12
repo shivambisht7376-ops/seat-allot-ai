@@ -1,0 +1,6 @@
+{
+  "name": "Seat Allocation & Project Mapping Manager",
+  "description": "Enterprise seat allocation and project mapping platform for 5,000+ employees with SVG floor plans, unassigned joiner queue, and server-side Gemini AI workspace query assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
