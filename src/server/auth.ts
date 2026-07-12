@@ -114,6 +114,41 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
 }
 
 /**
+ * Middleware factory: only allows requests from users with one of the given roles.
+ * Must be used AFTER authenticateToken.
+ */
+export function requireRole(...roles: string[]) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      res.status(401).json({ error: 'Not authenticated.' });
+      return;
+    }
+    if (!roles.includes(req.user.role)) {
+      res.status(403).json({ error: `Access denied. Required role: ${roles.join(' or ')}.` });
+      return;
+    }
+    next();
+  };
+}
+
+/**
+ * GET /api/auth/me — returns the current user profile from the JWT.
+ */
+export function meHandler(req: Request, res: Response): void {
+  if (!req.user) {
+    res.status(401).json({ error: 'Not authenticated.' });
+    return;
+  }
+  res.json({
+    id:           req.user.userId,
+    employeeCode: req.user.employeeCode,
+    name:         req.user.name,
+    role:         req.user.role,
+    tenantId:     req.user.tenantId,
+  });
+}
+
+/**
  * Utility: hash a plain-text password.
  */
 export async function hashPassword(plain: string): Promise<string> {

@@ -4,8 +4,9 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, Send, Sparkles, AlertCircle, RefreshCw, HelpCircle, CornerDownLeft } from 'lucide-react';
+import { Bot, Send, Sparkles, AlertCircle, RefreshCw, Trash2, CornerDownLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useAuthHeader } from '../context/AuthContext.js';
 
 interface AiAssistantPanelProps {
   id: string;
@@ -21,14 +22,14 @@ interface Message {
 }
 
 export function AiAssistantPanel({ id, onStatsChanged }: AiAssistantPanelProps) {
+  const authHeader = useAuthHeader();
   const [query, setQuery] = useState<string>('');
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 'welcome',
-      sender: 'assistant',
-      text: `### Hello! I am your AI Workspace Assistant.
+  const WELCOME: Message = {
+    id: 'welcome',
+    sender: 'assistant',
+    text: `### Hello! I am your AI Workspace Assistant.
 
-I can help you query, search, and manage our database of **5,000 employees** and **5,600 desks**.
+I can help you query, search, and manage our database of **3,000 employees** and **5,600 desks**.
 
 **Examples of what you can ask me:**
 * 🔍 *"Find seat for David Vance"*
@@ -36,14 +37,17 @@ I can help you query, search, and manage our database of **5,000 employees** and
 * 📊 *"What is our overall seat utilization rate?"*
 * ⚡ *"Allocate seat F1-ZA-102 to employee EMP-0105"*
 * 🔓 *"Release seat for employee EMP-0412"*
+* 📋 *"List all employees in Project Apollo"*
+* 🤖 *"Auto-allocate all unassigned new joiners"*
 `,
-      suggestions: [
-        'Find vacant seats on floor 1',
-        'Show unassigned new joiners',
-        'What is our seat utilization stats?'
-      ]
-    }
-  ]);
+    suggestions: [
+      'Find vacant seats on floor 1',
+      'Show unassigned new joiners',
+      'List employees in Project Apollo',
+      'What is our seat utilization?',
+    ]
+  };
+  const [messages, setMessages] = useState<Message[]>([WELCOME]);
   const [loading, setLoading] = useState<boolean>(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -54,12 +58,7 @@ I can help you query, search, and manage our database of **5,000 employees** and
   const handleQuerySubmit = async (textToSend: string) => {
     if (!textToSend.trim() || loading) return;
 
-    const userMsg: Message = {
-      id: Math.random().toString(),
-      sender: 'user',
-      text: textToSend
-    };
-
+    const userMsg: Message = { id: Math.random().toString(), sender: 'user', text: textToSend };
     setMessages(prev => [...prev, userMsg]);
     setQuery('');
     setLoading(true);
@@ -67,7 +66,7 @@ I can help you query, search, and manage our database of **5,000 employees** and
     try {
       const res = await fetch('/api/assistant', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(authHeader as any) },
         body: JSON.stringify({ query: textToSend })
       });
 
@@ -127,12 +126,19 @@ I can help you query, search, and manage our database of **5,000 employees** and
             <h4 className="text-sm font-bold font-sans">AI Workspace Assistant</h4>
             <div className="flex items-center gap-1 mt-0.5 text-[10px] text-slate-300 font-medium">
               <Sparkles className="w-3 h-3 text-blue-400" />
-              <span>Powered by Gemini 3.5 Flash</span>
+              <span>Powered by Gemini Flash</span>
             </div>
           </div>
         </div>
-        <div className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-bold font-sans">
-          ONLINE
+        <div className="flex items-center gap-2">
+          <div className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold">ONLINE</div>
+          <button
+            onClick={() => setMessages([WELCOME])}
+            title="Clear chat"
+            className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
@@ -207,10 +213,12 @@ I can help you query, search, and manage our database of **5,000 employees** and
           {loading && (
             <div className="flex items-start gap-2.5">
               <div className="p-2 bg-white border border-slate-150 rounded-xl text-blue-500">
-                <RefreshCw className="w-4 h-4 animate-spin" />
+                <Bot className="w-4 h-4" />
               </div>
-              <div className="bg-white border border-slate-150 rounded-2xl p-4 text-xs font-semibold text-slate-400 font-sans shadow-2xs">
-                AI Assistant is parsing database schemas...
+              <div className="bg-white border border-slate-150 rounded-2xl px-4 py-3 flex items-center gap-1.5 shadow-2xs">
+                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
           )}

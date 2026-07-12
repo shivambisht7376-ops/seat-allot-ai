@@ -7,14 +7,17 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, User, X, Check, Users, AlertCircle, RefreshCw } from 'lucide-react';
 import { Seat, Employee, Project } from '../types.js';
+import { useAuthHeader } from '../context/AuthContext.js';
 
 interface SeatingMapProps {
   id: string;
   projects: Project[];
   onStatsChanged: () => void;
+  readOnly?: boolean;
 }
 
-export function SeatingMap({ id, projects, onStatsChanged }: SeatingMapProps) {
+export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: SeatingMapProps) {
+  const authHeader = useAuthHeader();
   const [selectedFloor, setSelectedFloor] = useState<number>(1);
   const [selectedZone, setSelectedZone] = useState<string>('A');
   const [seats, setSeats] = useState<Seat[]>([]);
@@ -34,7 +37,7 @@ export function SeatingMap({ id, projects, onStatsChanged }: SeatingMapProps) {
   const loadSeats = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/seats?floor=${selectedFloor}&zone=${selectedZone}`);
+      const res = await fetch(`/api/seats?floor=${selectedFloor}&zone=${selectedZone}`, { headers: authHeader as any });
       if (res.ok) {
         const data = await res.json();
         setSeats(data);

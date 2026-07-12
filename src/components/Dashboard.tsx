@@ -6,11 +6,15 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Building, Users, UserPlus, AlertCircle, TrendingUp, RefreshCw, 
-  Settings, HelpCircle, CheckCircle, Database, ChevronRight, MapPin, Layers 
+  Settings, HelpCircle, CheckCircle, Database, ChevronRight, MapPin, Layers, BarChart3
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { DbStats, AllocationLog } from '../types.js';
 import { MetricCard } from './MetricCard.js';
+import { StatusDonutChart }      from './charts/StatusDonutChart.js';
+import { ProjectHeadcountChart } from './charts/ProjectHeadcountChart.js';
+import { SeatUtilizationChart }  from './charts/SeatUtilizationChart.js';
+import { useAuthHeader } from '../context/AuthContext.js';
 
 interface DashboardProps {
   id: string;
@@ -19,33 +23,26 @@ interface DashboardProps {
 }
 
 export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
+  const authHeader = useAuthHeader();
   const [logs, setLogs] = useState<AllocationLog[]>([]);
   const [logsLoading, setLogsLoading] = useState<boolean>(false);
-  
-  // Floor utilization detailed map
   const [floorUtil, setFloorUtil] = useState<Record<string, { total: number, occupied: number, rate: number }>>({});
   const [floorUtilLoading, setFloorUtilLoading] = useState<boolean>(false);
-
-  // DB Seeding state
+  const [projectHeadcount, setProjectHeadcount] = useState<any[]>([]);
   const [seedingLoading, setSeedingLoading] = useState<boolean>(false);
 
   const fetchDashboardData = async () => {
     setLogsLoading(true);
     setFloorUtilLoading(true);
     try {
-      // Fetch Logs
-      const logsRes = await fetch('/api/logs?limit=8');
-      if (logsRes.ok) {
-        const logsData = await logsRes.json();
-        setLogs(logsData);
-      }
-
-      // Fetch Floor Utilization details
-      const utilRes = await fetch('/api/seats/utilization');
-      if (utilRes.ok) {
-        const utilData = await utilRes.json();
-        setFloorUtil(utilData);
-      }
+      const [logsRes, utilRes, hcRes] = await Promise.all([
+        fetch('/api/logs?limit=8',          { headers: authHeader as any }),
+        fetch('/api/seats/utilization',     { headers: authHeader as any }),
+        fetch('/api/projects/headcount',    { headers: authHeader as any }),
+      ]);
+      if (logsRes.ok) setLogs(await logsRes.json());
+      if (utilRes.ok) setFloorUtil(await utilRes.json());
+      if (hcRes.ok)   setProjectHeadcount(await hcRes.json());
     } catch (err) {
       console.error(err);
     } finally {
@@ -136,6 +133,42 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
         </div>
       )}
 
+      {/* ── Charts Row ────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Status Donut */}
+        {stats && (
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <h4 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-slate-500" />
+              Workforce Status
+            </h4>
+            <StatusDonutChart stats={stats} />
+          </div>
+        )}
+
+        {/* Project Headcount */}
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+          <h4 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-slate-500" />
+            Headcount by Project
+          </h4>
+          {projectHeadcount.length > 0
+            ? <ProjectHeadcountChart data={projectHeadcount} />
+            : <p className="text-xs text-slate-400 text-center py-8">Loading…</p>}
+        </div>
+
+        {/* Seat Utilization by zone */}
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+          <h4 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-slate-500" />
+            Seat Utilization by Zone
+          </h4>
+          {floorUtilLoading
+            ? <p className="text-xs text-slate-400 text-center py-8">Loading…</p>
+            : <SeatUtilizationChart data={floorUtil} />}
+        </div>
+      </div>
+
       {/* Main Grid Content: Floor Levels and Logs */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
@@ -170,13 +203,13 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
                     <div className="flex-1 grid grid-cols-4 gap-2.5 max-w-sm">
                       {['A', 'B', 'C', 'D'].map(zone => {
                         const key = `F${floorNum}-Z${zone}`;
-                        const zoneData = floorUtil[key] || { rate: 0 };
+                        const zoneData = floorUtil[key] || { rate: 0, occupied: 0, total: 0 };
                         
                         return (
                           <div 
                             key={zone} 
                             className="bg-white border border-slate-200 p-2 rounded-lg text-center font-sans shadow-2xs relative overflow-hidden"
-                            title={`${key}: ${zoneData.occupied || 0}/${zoneData.total || 0} seated`}
+                            title={`${key}: ${zoneData.occupied}/${zoneData.total} seated`}
                           >
                             <span className="block font-bold text-slate-500 text-[10px] leading-tight">Zone {zone}</span>
                             <span className="block font-semibold text-slate-900 text-xs mt-1 font-mono">{zoneData.rate}%</span>

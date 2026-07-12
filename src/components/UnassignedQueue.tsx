@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserCheck, AlertTriangle, Play, Sparkles, X, ChevronRight, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { Employee } from '../types.js';
+import { useAuthHeader } from '../context/AuthContext.js';
 
 interface UnassignedQueueProps {
   id: string;
@@ -13,6 +14,7 @@ interface UnassignedQueueProps {
 }
 
 export function UnassignedQueue({ id, onStatsChanged }: UnassignedQueueProps) {
+  const authHeader = useAuthHeader();
   const [unassigned, setUnassigned] = useState<Employee[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
@@ -22,7 +24,7 @@ export function UnassignedQueue({ id, onStatsChanged }: UnassignedQueueProps) {
   const fetchUnassigned = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/employees?limit=20&isUnassigned=true');
+      const res = await fetch('/api/employees?limit=20&isUnassigned=true', { headers: authHeader as any });
       if (res.ok) {
         const data = await res.json();
         setUnassigned(data.data);
@@ -44,7 +46,8 @@ export function UnassignedQueue({ id, onStatsChanged }: UnassignedQueueProps) {
     setRunningAuto(true);
     try {
       const res = await fetch('/api/seats/auto-allocate', {
-        method: 'POST'
+        method: 'POST',
+        headers: { ...(authHeader as any) },
       });
       if (res.ok) {
         const data = await res.json();

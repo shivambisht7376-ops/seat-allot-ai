@@ -94,7 +94,7 @@ async function gatherQueryContext(queryText: string): Promise<any> {
 /**
  * Processes a natural language query using Gemini 3.5 Flash
  */
-export async function processAssistantQuery(queryText: string): Promise<GeminiAssistantResponse> {
+export async function processAssistantQuery(queryText: string, _userRole: string = 'EMPLOYEE'): Promise<GeminiAssistantResponse> {
   const context = await gatherQueryContext(queryText);
   const prompt = queryText.trim();
 
@@ -232,7 +232,7 @@ async function processOfflineFallback(queryText: string, context: any): Promise<
   const empIdMatch = queryLower.match(/emp-\d{4}/);
   if (empIdMatch) {
     const empId = empIdMatch[0].toUpperCase();
-    const employee = DbService.getEmployeeById(empId);
+    const employee = await DbService.getEmployeeById(empId);
     if (employee) {
       answer = `### 👤 Employee Profile: ${employee.name}\n\n* **ID**: \`${employee.id}\`\n* **Role**: ${employee.role}\n* **Department**: ${employee.department}\n* **Project Mapping**: \`${employee.projectCode || 'None'}\`\n* **Seat Assignment**: ${employee.seatId ? `**${employee.seatId}**` : '❌ **Unassigned (Needs Desk)**'}\n* **Status**: ${employee.status}\n* **Join Date**: ${employee.joinDate}`;
     } else {

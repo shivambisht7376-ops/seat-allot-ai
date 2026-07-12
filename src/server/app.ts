@@ -4,20 +4,31 @@
  */
 
 import express from 'express';
+import cors from 'cors';
 import type { Request, Response } from 'express';
 import { DbService } from './db.js';
 import { processAssistantQuery } from './gemini.js';
-import { loginHandler, authenticateToken } from './auth.js';
+import { loginHandler, authenticateToken, requireRole, meHandler } from './auth.js';
+import { prisma } from '../lib/prisma.js';
 
 export function createApp() {
   const app = express();
   app.use(express.json({ limit: '10mb' }));
+
+  // ── CORS (allow Vercel frontend or any origin in dev) ─────────────────────
+  app.use(cors({
+    origin: process.env.FRONTEND_URL ?? true,
+    credentials: true,
+  }));
 
   // ── PUBLIC ──────────────────────────────────────────────────────────────
   app.post('/api/auth/login', loginHandler);
 
   // ── PROTECTED ───────────────────────────────────────────────────────────
   app.use('/api', authenticateToken);
+
+  // Current user profile
+  app.get('/api/auth/me', meHandler);
 
   // Stats
   app.get('/api/stats', async (_req: Request, res: Response) => {
@@ -31,7 +42,7 @@ export function createApp() {
     catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.post('/api/projects', async (req: Request, res: Response) => {
+  app.post('/api/projects', requireRole('ADMIN', 'MANAGER'), async (req: Request, res: Response) => {
     try {
       const { code, name, lead, targetZone } = req.body;
       if (!code || !name || !lead || !targetZone) {
@@ -49,7 +60,7 @@ export function createApp() {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.patch('/api/projects/:code', async (req: Request, res: Response) => {
+  app.patch('/api/projects/:code', requireRole('ADMIN', 'MANAGER'), async (req: Request, res: Response) => {
     try {
       const result = await DbService.updateProject(req.params.code, req.body);
       if (!result.success) { res.status(404).json({ error: result.message }); return; }
@@ -57,7 +68,7 @@ export function createApp() {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.delete('/api/projects/:code', async (req: Request, res: Response) => {
+  app.delete('/api/projects/:code', requireRole('ADMIN'), async (req: Request, res: Response) => {
     try {
       const result = await DbService.deleteProject(req.params.code);
       if (!result.success) {
@@ -89,7 +100,7 @@ export function createApp() {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.post('/api/employees', async (req: Request, res: Response) => {
+  app.post('/api/employees', requireRole('ADMIN', 'MANAGER'), async (req: Request, res: Response) => {
     try {
       const { name, email, role, department, status, joinDate, projectCode, employeeCode } = req.body;
       if (!name || !email || !role || !department || !joinDate) {
@@ -109,7 +120,7 @@ export function createApp() {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.patch('/api/employees/:id', async (req: Request, res: Response) => {
+  app.patch('/api/employees/:id', requireRole('ADMIN', 'MANAGER'), async (req: Request, res: Response) => {
     try {
       const result = await DbService.updateEmployee(req.params.id, req.body);
       if (!result.success) { res.status(400).json({ error: result.message }); return; }
@@ -117,11 +128,36 @@ export function createApp() {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.delete('/api/employees/:id', async (req: Request, res: Response) => {
+  app.delete('/api/employees/:id', requireRole('ADMIN'), async (req: Request, res: Response) => {
     try {
       const result = await DbService.deleteEmployee(req.params.id);
       if (!result.success) { res.status(404).json({ error: result.message }); return; }
       res.json(result);
+    } catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  // Terminate employee (set Resigned + release seat)
+  app.post('/api/employees/:id/terminate', requireRole('ADMIN', 'MANAGER'), async (req: Request, res: Response) => {
+    try {
+      const emp = await DbService.getEmployeeById(req.params.id);
+      if (!emp) { res.status(404).json({ error: 'Employee not found.' }); return; }
+      // Release seat first
+      if (emp.seatId) await DbService.releaseSeat(req.params.id);
+      // Mark resigned
+      const result = await DbService.updateEmployee(req.params.id, { status: 'Resigned' });
+      if (!result.success) { res.status(400).json({ error: result.message }); return; }
+      res.json({ success: true, message: `Employee ${req.params.id} has been terminated.` });
+    } catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  // Assign employee to project
+  app.post('/api/employees/:id/assign-project', requireRole('ADMIN', 'MANAGER'), async (req: Request, res: Response) => {
+    try {
+      const { projectCode } = req.body;
+      if (!projectCode) { res.status(400).json({ error: 'projectCode is required.' }); return; }
+      const result = await DbService.updateEmployee(req.params.id, { projectCode });
+      if (!result.success) { res.status(400).json({ error: result.message }); return; }
+      res.json({ success: true, message: `Employee ${req.params.id} assigned to ${projectCode}.` });
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
@@ -142,7 +178,7 @@ export function createApp() {
     catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.post('/api/seats', async (req: Request, res: Response) => {
+  app.post('/api/seats', requireRole('ADMIN', 'MANAGER'), async (req: Request, res: Response) => {
     try {
       const { floor, zone, number, type } = req.body;
       if (floor === undefined || !zone || number === undefined) {
@@ -158,8 +194,7 @@ export function createApp() {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  // NOTE: /api/seats/utilization must appear BEFORE /api/seats/:id or Express
-  // will match "utilization" as the :id param.
+  // NOTE: /api/seats/utilization must appear BEFORE /api/seats/:id
   app.get('/api/seats/:id', async (req: Request, res: Response) => {
     try {
       const seat = await DbService.getSeatByLabel(req.params.id);
@@ -168,7 +203,7 @@ export function createApp() {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.patch('/api/seats/:id', async (req: Request, res: Response) => {
+  app.patch('/api/seats/:id', requireRole('ADMIN', 'MANAGER'), async (req: Request, res: Response) => {
     try {
       const result = await DbService.updateSeat(req.params.id, req.body);
       if (!result.success) {
@@ -178,7 +213,7 @@ export function createApp() {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.delete('/api/seats/:id', async (req: Request, res: Response) => {
+  app.delete('/api/seats/:id', requireRole('ADMIN'), async (req: Request, res: Response) => {
     try {
       const result = await DbService.deleteSeat(req.params.id);
       if (!result.success) {
@@ -189,7 +224,7 @@ export function createApp() {
   });
 
   // Seat actions
-  app.post('/api/seats/allocate', async (req: Request, res: Response) => {
+  app.post('/api/seats/allocate', requireRole('ADMIN', 'MANAGER'), async (req: Request, res: Response) => {
     try {
       const { employeeId, seatId } = req.body;
       if (!employeeId || !seatId) { res.status(400).json({ error: 'Missing employeeId or seatId' }); return; }
@@ -199,7 +234,7 @@ export function createApp() {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.post('/api/seats/release', async (req: Request, res: Response) => {
+  app.post('/api/seats/release', requireRole('ADMIN', 'MANAGER'), async (req: Request, res: Response) => {
     try {
       const { employeeId } = req.body;
       if (!employeeId) { res.status(400).json({ error: 'Missing employeeId' }); return; }
@@ -209,7 +244,7 @@ export function createApp() {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.post('/api/seats/auto-allocate', async (_req: Request, res: Response) => {
+  app.post('/api/seats/auto-allocate', requireRole('ADMIN', 'MANAGER'), async (_req: Request, res: Response) => {
     try { res.json(await DbService.autoAllocateJoiners()); }
     catch (e: any) { res.status(500).json({ error: e.message }); }
   });
@@ -227,7 +262,22 @@ export function createApp() {
     try {
       const { query } = req.body;
       if (!query) { res.status(400).json({ error: 'Missing query in body' }); return; }
-      res.json(await processAssistantQuery(query));
+      const userRole = req.user?.role ?? 'EMPLOYEE';
+      res.json(await processAssistantQuery(query, userRole));
+    } catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  // ── Project headcount for charts ──────────────────────────────────────
+  app.get('/api/projects/headcount', async (_req: Request, res: Response) => {
+    try {
+      const projects = await DbService.getProjects();
+      const headcounts = await Promise.all(projects.map(async (p) => {
+        const count = await prisma.user.count({
+          where: { project: { code: p.code }, status: { not: 'Resigned' } }
+        });
+        return { code: p.code, name: p.name, color: p.color, count };
+      }));
+      res.json(headcounts);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 

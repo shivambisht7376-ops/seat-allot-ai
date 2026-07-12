@@ -14,6 +14,7 @@ dotenv.config();
 const migrateUrl = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL!;
 
 export default defineConfig({
+  // @ts-ignore — earlyAccess is required for the driver adapter API (Prisma v6 Early Access)
   earlyAccess: true,
   schema: './prisma/schema.prisma',
 

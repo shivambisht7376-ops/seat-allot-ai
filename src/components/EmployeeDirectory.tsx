@@ -4,16 +4,21 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Search, ChevronLeft, ChevronRight, UserMinus, Plus, UserCheck, SlidersHorizontal, RefreshCw, AlertCircle } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, UserMinus, Plus, UserCheck, SlidersHorizontal, RefreshCw, AlertCircle, UserX, Briefcase } from 'lucide-react';
 import { Employee, Project } from '../types.js';
+import { useAuthHeader } from '../context/AuthContext.js';
 
 interface EmployeeDirectoryProps {
   id: string;
   projects: Project[];
   onStatsChanged: () => void;
+  userRole?: 'ADMIN' | 'MANAGER' | 'EMPLOYEE';
 }
 
-export function EmployeeDirectory({ id, projects, onStatsChanged }: EmployeeDirectoryProps) {
+export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EMPLOYEE' }: EmployeeDirectoryProps) {
+  const authHeader = useAuthHeader();
+  const canManage = userRole === 'ADMIN' || userRole === 'MANAGER';
+  const canDelete = userRole === 'ADMIN';
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [limit] = useState<number>(10);
@@ -42,7 +47,8 @@ export function EmployeeDirectory({ id, projects, onStatsChanged }: EmployeeDire
       const unassignedQuery = isUnassigned ? `&isUnassigned=true` : '';
 
       const res = await fetch(
-        `/api/employees?limit=${limit}&offset=${offset}${textQuery}${projQuery}${floorQuery}${zoneQuery}${unassignedQuery}`
+        `/api/employees?limit=${limit}&offset=${offset}${textQuery}${projQuery}${floorQuery}${zoneQuery}${unassignedQuery}`,
+        { headers: authHeader as any }
       );
       if (res.ok) {
         const data = await res.json();
@@ -77,11 +83,11 @@ export function EmployeeDirectory({ id, projects, onStatsChanged }: EmployeeDire
   };
 
   const handleReleaseSeat = async (empId: string) => {
-    if (!confirm('Are you sure you want to release the desk allocation for this employee?')) return;
+    if (!confirm('Release the desk allocation for this employee?')) return;
     try {
       const res = await fetch('/api/seats/release', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(authHeader as any) },
         body: JSON.stringify({ employeeId: empId })
       });
       if (res.ok) {
@@ -91,9 +97,19 @@ export function EmployeeDirectory({ id, projects, onStatsChanged }: EmployeeDire
           setEditingEmployee(prev => prev ? { ...prev, seatId: null } : null);
         }
       }
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
+  };
+
+  const handleTerminate = async (empId: string, empName: string) => {
+    if (!confirm(`Terminate ${empName}? This will release their seat and mark them as Resigned.`)) return;
+    try {
+      const res = await fetch(`/api/employees/${empId}/terminate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(authHeader as any) },
+      });
+      if (res.ok) { fetchEmployees(); onStatsChanged(); setEditingEmployee(null); }
+      else { const d = await res.json(); alert(d.error ?? 'Failed to terminate.'); }
+    } catch (err) { console.error(err); }
   };
 
   const handleUpdateProject = async (empId: string, projCode: string) => {
@@ -101,7 +117,7 @@ export function EmployeeDirectory({ id, projects, onStatsChanged }: EmployeeDire
     try {
       const res = await fetch(`/api/employees/${empId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(authHeader as any) },
         body: JSON.stringify({ projectCode: projCode || null })
       });
       if (res.ok) {
@@ -111,11 +127,8 @@ export function EmployeeDirectory({ id, projects, onStatsChanged }: EmployeeDire
           setEditingEmployee(prev => prev ? { ...prev, projectCode: projCode || null } : null);
         }
       }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setUpdateProjectLoading(false);
-    }
+    } catch (err) { console.error(err); }
+    finally { setUpdateProjectLoading(false); }
   };
 
   const currentPage = Math.floor(offset / limit) + 1;
@@ -319,6 +332,16 @@ export function EmployeeDirectory({ id, projects, onStatsChanged }: EmployeeDire
                       >
                         Profile
                       </button>
+                      {canManage && emp.status !== 'Resigned' && (
+                        <button
+                          id={`btn-terminate-${emp.id}`}
+                          onClick={() => handleTerminate(emp.id, emp.name)}
+                          className="px-2.5 py-1.5 border border-red-200 hover:bg-red-50 text-red-600 rounded-lg text-xs font-semibold flex items-center gap-1"
+                        >
+                          <UserX className="w-3 h-3" />
+                          Terminate
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
