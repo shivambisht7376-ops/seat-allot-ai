@@ -40,7 +40,7 @@ interface GeminiAssistantResponse {
  * For example, if user asks "Who sits at F2-ZA-105?", we fetch seat F2-ZA-105.
  * If user asks "Where does Robert Chen sit?", we find Robert Chen.
  */
-function gatherQueryContext(queryText: string): any {
+async function gatherQueryContext(queryText: string): Promise<any> {
   const queryLower = queryText.toLowerCase();
   const context: any = {};
 
@@ -48,7 +48,7 @@ function gatherQueryContext(queryText: string): any {
   const seatMatch = queryLower.match(/f[1-4]-z[a-d]-\d{3}/);
   if (seatMatch) {
     const seatId = seatMatch[0].toUpperCase();
-    const employee = DbService.getEmployeeBySeat(seatId);
+    const employee = await DbService.getEmployeeBySeat(seatId);
     context.targetSeat = seatId;
     context.seatedEmployee = employee || 'None (Seat is currently vacant)';
   }
@@ -57,14 +57,13 @@ function gatherQueryContext(queryText: string): any {
   const empIdMatch = queryLower.match(/emp-\d{4}/);
   if (empIdMatch) {
     const empId = empIdMatch[0].toUpperCase();
-    const employee = DbService.getEmployeeById(empId);
+    const employee = await DbService.getEmployeeById(empId);
     context.targetEmployee = employee || 'None (Employee ID does not exist)';
   }
 
   // Fuzzy search if names or terms mentioned
   if (queryLower.length > 3 && !seatMatch && !empIdMatch) {
-    // Search top 15 matching employees to supply as precise context
-    const searchResult = DbService.getEmployees(15, 0, queryText);
+    const searchResult = await DbService.getEmployees(15, 0, queryText);
     context.matchingEmployees = searchResult.data.map(e => ({
       id: e.id,
       name: e.name,
@@ -77,8 +76,12 @@ function gatherQueryContext(queryText: string): any {
   }
 
   // Always supply global utilization statistics
-  context.globalStats = DbService.getStats();
-  context.projectsSummary = DbService.getProjects().map(p => ({
+  const [globalStats, projects] = await Promise.all([
+    DbService.getStats(),
+    DbService.getProjects(),
+  ]);
+  context.globalStats = globalStats;
+  context.projectsSummary = projects.map(p => ({
     code: p.code,
     name: p.name,
     lead: p.lead,
@@ -92,7 +95,7 @@ function gatherQueryContext(queryText: string): any {
  * Processes a natural language query using Gemini 3.5 Flash
  */
 export async function processAssistantQuery(queryText: string): Promise<GeminiAssistantResponse> {
-  const context = gatherQueryContext(queryText);
+  const context = await gatherQueryContext(queryText);
   const prompt = queryText.trim();
 
   // If API key is missing, provide a robust, polite, and fully-featured offline response matching the user query
@@ -158,7 +161,7 @@ You MUST respond ONLY with a JSON object of this schema:
 
     // Execute mutations if Gemini identified the intent
     if (parsed.intent === 'ALLOCATE' && parsed.targetEmployeeId && parsed.targetSeatId) {
-      const result = DbService.allocateSeat(parsed.targetEmployeeId, parsed.targetSeatId);
+      const result = await DbService.allocateSeat(parsed.targetEmployeeId, parsed.targetSeatId);
       if (result.success) {
         actionExecuted = `Allocated seat ${parsed.targetSeatId} to employee ${parsed.targetEmployeeId}`;
         updatedEmployee = result.employee;
@@ -167,9 +170,9 @@ You MUST respond ONLY with a JSON object of this schema:
         parsed.answer = `### ⚠️ Seating Allocation Failed\n\nI attempted to allocate **seat ${parsed.targetSeatId}** to employee **${parsed.targetEmployeeId}**, but encountered an issue: *${result.message}*`;
       }
     } else if (parsed.intent === 'RELEASE' && parsed.targetEmployeeId) {
-      const targetEmp = DbService.getEmployeeById(parsed.targetEmployeeId);
+      const targetEmp = await DbService.getEmployeeById(parsed.targetEmployeeId);
       const prevSeat = targetEmp?.seatId;
-      const result = DbService.releaseSeat(parsed.targetEmployeeId);
+      const result = await DbService.releaseSeat(parsed.targetEmployeeId);
       if (result.success && prevSeat) {
         actionExecuted = `Released seat ${prevSeat} from employee ${parsed.targetEmployeeId}`;
         updatedEmployee = result.employee;
@@ -196,7 +199,7 @@ You MUST respond ONLY with a JSON object of this schema:
  * Super robust local fallback rule-engine that handles queries immediately
  * when the API key is not present or calls fail. Keeps the system fully offline-autonomous!
  */
-function processOfflineFallback(queryText: string, context: any): GeminiAssistantResponse {
+async function processOfflineFallback(queryText: string, context: any): Promise<GeminiAssistantResponse> {
   const queryLower = queryText.toLowerCase().trim();
   let answer = '';
   let actionExecuted: string | null = null;
@@ -211,7 +214,7 @@ function processOfflineFallback(queryText: string, context: any): GeminiAssistan
   const seatMatch = queryLower.match(/f[1-4]-z[a-d]-\d{3}/);
   if (seatMatch) {
     const seatId = seatMatch[0].toUpperCase();
-    const employee = DbService.getEmployeeBySeat(seatId);
+    const employee = context.seatedEmployee && typeof context.seatedEmployee === 'object' ? context.seatedEmployee : null;
     if (employee) {
       answer = `### 📍 Seat Registry: ${seatId}\n\nThis seat is currently **Occupied**.\n\n* **Employee**: **${employee.name}** (\`${employee.id}\`)\n* **Role**: ${employee.role}\n* **Department**: ${employee.department}\n* **Assigned Project**: \`${employee.projectCode || 'None'}\`\n* **Employment Status**: ${employee.status}`;
     } else {
@@ -240,7 +243,7 @@ function processOfflineFallback(queryText: string, context: any): GeminiAssistan
 
   // 3. Check for general search keywords
   if (queryLower.includes('new joiner') || queryLower.includes('unassigned') || queryLower.includes('no seat')) {
-    const unassigned = DbService.getEmployees(5, 0, '', '', null, '', true);
+    const unassigned = await DbService.getEmployees(5, 0, '', '', null, '', true);
     answer = `### 📋 Unassigned New Joiner Queue\n\nThere are currently **${context.globalStats.unassignedJoiners} new joiners** without a permanent desk assignment. Here are the top pending profiles:\n\n`;
     unassigned.data.forEach(e => {
       answer += `- **${e.name}** (\`${e.id}\`) - ${e.role} (${e.department}) - Joined: *${e.joinDate}*\n`;
@@ -271,7 +274,7 @@ function processOfflineFallback(queryText: string, context: any): GeminiAssistan
   if (allocateMatch) {
     const seatId = allocateMatch[1].toUpperCase();
     const empId = allocateMatch[2].toUpperCase();
-    const result = DbService.allocateSeat(empId, seatId);
+    const result = await DbService.allocateSeat(empId, seatId);
     if (result.success) {
       actionExecuted = `Allocated seat ${seatId} to employee ${empId}`;
       updatedEmployee = result.employee;
@@ -286,9 +289,9 @@ function processOfflineFallback(queryText: string, context: any): GeminiAssistan
   const releaseMatch = queryLower.match(/(?:release|free|vacate)\s+(?:seat\s+for\s+)?(?:employee\s+)?(emp-\d{4})/);
   if (releaseMatch) {
     const empId = releaseMatch[1].toUpperCase();
-    const emp = DbService.getEmployeeById(empId);
+    const emp = await DbService.getEmployeeById(empId);
     const prevSeat = emp?.seatId;
-    const result = DbService.releaseSeat(empId);
+    const result = await DbService.releaseSeat(empId);
     if (result.success && prevSeat) {
       actionExecuted = `Released seat ${prevSeat} from employee ${empId}`;
       updatedEmployee = result.employee;
@@ -301,7 +304,7 @@ function processOfflineFallback(queryText: string, context: any): GeminiAssistan
 
   // 7. Auto allocate command
   if (queryLower.includes('auto allocate') || queryLower.includes('auto-allocate')) {
-    const res = DbService.autoAllocateJoiners();
+    const res = await DbService.autoAllocateJoiners();
     actionExecuted = `Auto-allocated ${res.allocatedCount} new joiners`;
     answer = `### ⚡ Auto-Allocation Complete!\n\nI scanned all floors and processed **${res.allocatedCount} new joiners**:\n\n`;
     res.details.forEach(d => {

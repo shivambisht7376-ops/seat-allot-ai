@@ -11,71 +11,82 @@ import { createServer as createViteServer } from 'vite';
 // Load environment variables
 dotenv.config();
 
-import { DbService, generateSeedData } from './src/server/db.js';
+import { initializePrismaDb, DbService } from './src/server/db.js';
 import { processAssistantQuery } from './src/server/gemini.js';
+import { loginHandler, authenticateToken } from './src/server/auth.js';
 
 const app = express();
 const PORT = 3000;
 
 app.use(express.json({ limit: '10mb' }));
 
-// --- REST API ENDPOINTS ---
+// ─────────────────────────────────────────────
+// PUBLIC ROUTES (no auth required)
+// ─────────────────────────────────────────────
 
-// 1. Get Seating & Employee Stats
-app.get('/api/stats', (req: Request, res: Response) => {
+// Auth: login
+app.post('/api/auth/login', loginHandler);
+
+// ─────────────────────────────────────────────
+// PROTECTED ROUTES (Bearer JWT required)
+// ─────────────────────────────────────────────
+app.use('/api', authenticateToken);
+
+// 1. Stats
+app.get('/api/stats', async (req: Request, res: Response) => {
   try {
-    const stats = DbService.getStats();
+    const stats = await DbService.getStats();
     res.json(stats);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// 2. Projects Endpoints
-app.get('/api/projects', (req: Request, res: Response) => {
+// 2. Projects
+app.get('/api/projects', async (req: Request, res: Response) => {
   try {
-    const projects = DbService.getProjects();
+    const projects = await DbService.getProjects();
     res.json(projects);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.post('/api/projects', (req: Request, res: Response) => {
+app.post('/api/projects', async (req: Request, res: Response) => {
   try {
     const { code, name, lead, targetZone } = req.body;
     if (!code || !name || !lead || !targetZone) {
       res.status(400).json({ error: 'Missing required project parameters: code, name, lead, targetZone' });
       return;
     }
-    const newProj = DbService.createProject({ code, name, lead, targetZone });
+    const newProj = await DbService.createProject({ code, name, lead, targetZone });
     res.json(newProj);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// 3. Employees Endpoints (supports massive scale searching and pagination)
-app.get('/api/employees', (req: Request, res: Response) => {
+// 3. Employees
+app.get('/api/employees', async (req: Request, res: Response) => {
   try {
-    const limit = parseInt(req.query.limit as string || '100', 10);
-    const offset = parseInt(req.query.offset as string || '0', 10);
-    const textSearch = (req.query.textSearch as string || '');
+    const limit       = parseInt(req.query.limit      as string || '100', 10);
+    const offset      = parseInt(req.query.offset     as string || '0',   10);
+    const textSearch  = (req.query.textSearch  as string || '');
     const projectCode = (req.query.projectCode as string || '');
-    const floor = req.query.floor ? parseInt(req.query.floor as string, 10) : null;
-    const zone = (req.query.zone as string || '');
+    const floor       = req.query.floor ? parseInt(req.query.floor as string, 10) : null;
+    const zone        = (req.query.zone as string || '');
     const isUnassigned = req.query.isUnassigned === 'true';
 
-    const result = DbService.getEmployees(limit, offset, textSearch, projectCode, floor, zone, isUnassigned);
+    const result = await DbService.getEmployees(limit, offset, textSearch, projectCode, floor, zone, isUnassigned);
     res.json(result);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.get('/api/employees/:id', (req: Request, res: Response) => {
+app.get('/api/employees/:id', async (req: Request, res: Response) => {
   try {
-    const emp = DbService.getEmployeeById(req.params.id);
+    const emp = await DbService.getEmployeeById(req.params.id);
     if (!emp) {
       res.status(404).json({ error: 'Employee not found' });
       return;
@@ -86,9 +97,9 @@ app.get('/api/employees/:id', (req: Request, res: Response) => {
   }
 });
 
-app.patch('/api/employees/:id', (req: Request, res: Response) => {
+app.patch('/api/employees/:id', async (req: Request, res: Response) => {
   try {
-    const result = DbService.updateEmployee(req.params.id, req.body);
+    const result = await DbService.updateEmployee(req.params.id, req.body);
     if (!result.success) {
       res.status(400).json({ error: result.message });
       return;
@@ -99,35 +110,35 @@ app.patch('/api/employees/:id', (req: Request, res: Response) => {
   }
 });
 
-// 4. Seats Endpoints
-app.get('/api/seats', (req: Request, res: Response) => {
+// 4. Seats
+app.get('/api/seats', async (req: Request, res: Response) => {
   try {
     const floor = parseInt(req.query.floor as string || '1', 10);
-    const zone = (req.query.zone as string || 'A').toUpperCase();
-    const seats = DbService.getSeats(floor, zone);
+    const zone  = (req.query.zone as string || 'A').toUpperCase();
+    const seats = await DbService.getSeats(floor, zone);
     res.json(seats);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.get('/api/seats/utilization', (req: Request, res: Response) => {
+app.get('/api/seats/utilization', async (req: Request, res: Response) => {
   try {
-    const util = DbService.getSeatMapUtilization();
+    const util = await DbService.getSeatMapUtilization();
     res.json(util);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.post('/api/seats/allocate', (req: Request, res: Response) => {
+app.post('/api/seats/allocate', async (req: Request, res: Response) => {
   try {
     const { employeeId, seatId } = req.body;
     if (!employeeId || !seatId) {
       res.status(400).json({ error: 'Missing employeeId or seatId' });
       return;
     }
-    const result = DbService.allocateSeat(employeeId, seatId);
+    const result = await DbService.allocateSeat(employeeId, seatId);
     if (!result.success) {
       res.status(400).json(result);
       return;
@@ -138,14 +149,14 @@ app.post('/api/seats/allocate', (req: Request, res: Response) => {
   }
 });
 
-app.post('/api/seats/release', (req: Request, res: Response) => {
+app.post('/api/seats/release', async (req: Request, res: Response) => {
   try {
     const { employeeId } = req.body;
     if (!employeeId) {
       res.status(400).json({ error: 'Missing employeeId' });
       return;
     }
-    const result = DbService.releaseSeat(employeeId);
+    const result = await DbService.releaseSeat(employeeId);
     if (!result.success) {
       res.status(400).json(result);
       return;
@@ -156,37 +167,41 @@ app.post('/api/seats/release', (req: Request, res: Response) => {
   }
 });
 
-app.post('/api/seats/auto-allocate', (req: Request, res: Response) => {
+app.post('/api/seats/auto-allocate', async (req: Request, res: Response) => {
   try {
-    const result = DbService.autoAllocateJoiners();
+    const result = await DbService.autoAllocateJoiners();
     res.json(result);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// 5. Recent Logs
-app.get('/api/logs', (req: Request, res: Response) => {
+// 5. Logs
+app.get('/api/logs', async (req: Request, res: Response) => {
   try {
     const limit = parseInt(req.query.limit as string || '50', 10);
-    const logs = DbService.getLogs(limit);
+    const logs  = await DbService.getLogs(limit);
     res.json(logs);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// 6. Regenerate database seeds (useful for Admin / Demo)
-app.post('/api/db/reset', (req: Request, res: Response) => {
+// 6. DB reset (admin only – checks for ADMIN role in JWT)
+app.post('/api/db/reset', async (req: Request, res: Response) => {
+  if (req.user?.role !== 'ADMIN') {
+    res.status(403).json({ error: 'Admin role required.' });
+    return;
+  }
   try {
-    generateSeedData();
-    res.json({ success: true, message: 'Database reset and fully seeded with 5,000 employees.' });
+    await DbService.generateSeedData();
+    res.json({ success: true, message: 'Re-run `npm run seed` to reset data.' });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// 7. Server-side Gemini AI workspace query assistant
+// 7. AI Assistant
 app.post('/api/assistant', async (req: Request, res: Response) => {
   try {
     const { query } = req.body;
@@ -201,10 +216,13 @@ app.post('/api/assistant', async (req: Request, res: Response) => {
   }
 });
 
-
-// --- VITE MIDDLEWARE SETUP ---
-
+// ─────────────────────────────────────────────
+// VITE / STATIC MIDDLEWARE
+// ─────────────────────────────────────────────
 async function startServer() {
+  // Initialise DB connection + resolve default tenant ID
+  await initializePrismaDb();
+
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },

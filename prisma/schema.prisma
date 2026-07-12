@@ -9,48 +9,53 @@ datasource db {
   provider = "postgresql"
 }
 
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 // TENANT
-// Represents a company/organisation using the platform.
-// All other models are scoped to a Tenant for multi-tenancy.
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 model Tenant {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique // e.g. "acme-corp" – used in URLs / subdomains
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  users       User[]
-  projects    Project[]
-  seats       Seat[]
+  users          User[]
+  projects       Project[]
+  seats          Seat[]
+  allocationLogs AllocationLog[]
 
   @@map("tenants")
 }
 
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 // USER
-// An employee / administrator within a Tenant.
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 model User {
-  id           String    @id @default(cuid())
+  id           String   @id @default(cuid())
   tenantId     String
-  employeeCode String                         // e.g. "EMP-001"
+  employeeCode String
   name         String
   email        String
-  role         UserRole  @default(EMPLOYEE)
-  projectId    String?                        // nullable – not yet on a project
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  role         UserRole @default(EMPLOYEE)
+  jobTitle     String   @default("")
+  department   String   @default("")
+  status       String   @default("Active")
+  joinDate     String   @default("")
+  passwordHash String?
+  lastLoginAt  DateTime?
+  projectId    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  tenant       Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  project      Project?       @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project        Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
   seatAssignment SeatAssignment?
 
   @@unique([tenantId, employeeCode])
   @@unique([tenantId, email])
   @@index([tenantId])
   @@index([projectId])
+  @@index([tenantId, status])
   @@map("users")
 }
 
@@ -60,49 +65,48 @@ enum UserRole {
   EMPLOYEE
 }
 
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 // PROJECT
-// A work-stream / team within a Tenant.
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 model Project {
-  id          String   @id @default(cuid())
-  tenantId    String
-  code        String                          // e.g. "PROJ-ALPHA"
-  name        String
-  lead        String                          // project lead name or userId
-  targetZone  String                          // preferred seating zone, e.g. "A", "B"
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  tenantId   String
+  code       String
+  name       String
+  lead       String
+  targetZone String
+  color      String   @default("#3b82f6")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  tenant      Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  members     User[]
+  tenant  Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  members User[]
 
   @@unique([tenantId, code])
   @@index([tenantId])
   @@map("projects")
 }
 
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 // SEAT
-// A physical desk/seat within a Tenant's office.
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 model Seat {
-  id          String     @id @default(cuid())
-  tenantId    String
-  label       String                          // e.g. "A1-01"
-  floor       Int                             // floor number
-  zone        String                          // zone identifier, e.g. "A", "B"
-  row         Int
-  col         Int
-  type        SeatType   @default(REGULAR)
-  status      SeatStatus @default(AVAILABLE)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id        String     @id @default(cuid())
+  tenantId  String
+  label     String
+  floor     Int
+  zone      String
+  number    Int
+  type      SeatType   @default(REGULAR)
+  status    SeatStatus @default(AVAILABLE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
-  tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  assignment  SeatAssignment?
+  tenant     Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assignment SeatAssignment?
 
-  @@unique([tenantId, floor, zone, row, col])
+  @@unique([tenantId, label])
+  @@unique([tenantId, floor, zone, number])
   @@index([tenantId, floor, zone])
   @@index([status])
   @@map("seats")
@@ -123,24 +127,42 @@ enum SeatStatus {
   MAINTENANCE
 }
 
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 // SEAT ASSIGNMENT
-// Joins a User to a Seat (one-to-one per tenant scope).
-// Tracks full audit trail via assignedAt / releasedAt.
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 model SeatAssignment {
-  id           String    @id @default(cuid())
-  userId       String    @unique              // one seat per user at a time
-  seatId       String    @unique              // one user per seat at a time
-  assignedAt   DateTime  @default(now())
-  releasedAt   DateTime?                      // null means currently active
-  assignedBy   String?                        // userId of admin who made the assignment
-  notes        String?
+  id         String    @id @default(cuid())
+  userId     String    @unique
+  seatId     String    @unique
+  assignedAt DateTime  @default(now())
+  releasedAt DateTime?
+  assignedBy String?
+  notes      String?
 
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  seat  Seat  @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  seat Seat @relation(fields: [seatId], references: [id], onDelete: Cascade)
 
   @@index([seatId])
-  @@index([assignedAt])
   @@map("seat_assignments")
+}
+
+// ---------------------------------------------
+// ALLOCATION LOG
+// ---------------------------------------------
+model AllocationLog {
+  id            String   @id @default(cuid())
+  tenantId      String
+  employeeCode  String
+  employeeName  String
+  action        String
+  seatLabel     String?
+  prevSeatLabel String?
+  details       String
+  createdAt     DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([createdAt(sort: Desc)])
+  @@map("allocation_logs")
 }
