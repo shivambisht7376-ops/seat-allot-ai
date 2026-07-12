@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "tsx server.ts",
     "seed": "tsx prisma/seed.ts",
     "test": "vitest run --reporter=verbose",
