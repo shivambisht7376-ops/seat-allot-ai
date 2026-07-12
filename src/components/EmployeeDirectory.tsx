@@ -565,7 +565,7 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
                       {loadingVacantSeats ? 'Loading seats...' : 'Select a vacant seat...'}
                     </option>
                     {vacantSeats.map(seat => (
-                      <option key={seat.id} value={seat.label}>{seat.label} ({seat.type})</option>
+                      <option key={seat.id} value={seat.id}>{seat.id}</option>
                     ))}
                   </select>
                   <button
