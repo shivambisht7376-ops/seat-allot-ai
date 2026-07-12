@@ -17,7 +17,7 @@ export function createApp() {
 
   // ── CORS (allow Vercel frontend or any origin in dev) ─────────────────────
   app.use(cors({
-    origin: process.env.FRONTEND_URL ?? true,
+    origin: true, // Allow any origin to prevent CORS network errors
     credentials: true,
   }));
 
