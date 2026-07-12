@@ -99,7 +99,7 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
             id="stat-capacity"
             title="Desk Capacity"
             value={`${stats.occupiedSeats.toLocaleString()} / ${stats.totalSeats.toLocaleString()}`}
-            icon={<Building className="w-5 h-5 text-blue-600" />}
+            icon={<Building className="w-5 h-5 text-indigo-400" />}
             subtitle="Total physical workstations mapped"
             trend={{ value: `${stats.utilizationRate}% occupancy`, isPositive: stats.utilizationRate < 95 }}
           />
@@ -107,7 +107,7 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
             id="stat-roster"
             title="Total Roster"
             value={stats.totalEmployees.toLocaleString()}
-            icon={<Users className="w-5 h-5 text-emerald-600" />}
+            icon={<Users className="w-5 h-5 text-emerald-400" />}
             subtitle="Active employees in database"
             trend={{ value: `+${stats.newJoiners} joiners`, isPositive: true }}
           />
@@ -115,7 +115,7 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
             id="stat-joiners"
             title="Pending Allocation"
             value={stats.unassignedJoiners.toLocaleString()}
-            icon={<UserPlus className="w-5 h-5 text-amber-600" />}
+            icon={<UserPlus className="w-5 h-5 text-amber-400" />}
             subtitle="New joiners awaiting seat mapping"
             trend={{ value: `${Math.round((stats.unassignedJoiners / stats.totalEmployees) * 1000) / 10}% roster`, isPositive: stats.unassignedJoiners > 0 }}
           />
@@ -123,12 +123,12 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
             id="stat-vacancies"
             title="Available Vacancies"
             value={stats.vacantSeats.toLocaleString()}
-            icon={<AlertCircle className="w-5 h-5 text-purple-600" />}
+            icon={<AlertCircle className="w-5 h-5 text-purple-400" />}
             subtitle="Available hot-desks / physical slots"
           />
         </div>
       ) : (
-        <div className="p-8 text-center text-slate-400 bg-white border rounded-xl animate-pulse">
+        <div className="p-8 text-center text-slate-400 glass-panel rounded-xl animate-pulse font-medium">
           Calculating spatial bento analytics...
         </div>
       )}
@@ -137,35 +137,87 @@ export function Dashboard({ id, stats, onStatsChanged }: DashboardProps) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Status Donut */}
         {stats && (
-          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-            <h4 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-slate-500" />
+          <div className="glass-panel rounded-xl p-5 shadow-lg relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2 relative z-10">
+              <BarChart3 className="w-4 h-4 text-indigo-400" />
               Workforce Status
             </h4>
-            <StatusDonutChart stats={stats} />
+            <div className="relative z-10">
+              <StatusDonutChart stats={stats} />
+            </div>
           </div>
         )}
 
         {/* Project Headcount */}
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-          <h4 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-slate-500" />
+        <div className="glass-panel rounded-xl p-5 shadow-lg relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2 relative z-10">
+            <BarChart3 className="w-4 h-4 text-emerald-400" />
             Headcount by Project
           </h4>
-          {projectHeadcount.length > 0
-            ? <ProjectHeadcountChart data={projectHeadcount} />
-            : <p className="text-xs text-slate-400 text-center py-8">Loading…</p>}
+          <div className="relative z-10">
+            {projectHeadcount.length === 0 ? (
+              <div className="h-48 flex items-center justify-center text-slate-400 text-xs font-medium">Loading...</div>
+            ) : (
+              <ProjectHeadcountChart data={projectHeadcount} />
+            )}
+          </div>
         </div>
 
-        {/* Seat Utilization by zone */}
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-          <h4 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-slate-500" />
+        {/* Seat Utilization Row-Based Bar Chart */}
+        <div className="glass-panel rounded-xl p-5 shadow-lg relative overflow-hidden group md:col-span-1 lg:col-span-1">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <h4 className="text-sm font-bold text-white mb-6 flex items-center gap-2 relative z-10">
+            <BarChart3 className="w-4 h-4 text-amber-400" />
             Seat Utilization by Zone
           </h4>
-          {floorUtilLoading
-            ? <p className="text-xs text-slate-400 text-center py-8">Loading…</p>
-            : <SeatUtilizationChart data={floorUtil} />}
+          <div className="space-y-6 relative z-10">
+            {floorUtilLoading ? (
+              <div className="h-48 flex items-center justify-center text-slate-400 text-xs font-medium">Loading map analytics...</div>
+            ) : (
+              [1, 2, 3, 4].map(floor => {
+                const floorAg = getFloorAggregated(floor);
+                return (
+                  <div key={floor} className="space-y-2">
+                    <div className="flex justify-between items-end mb-1">
+                      <span className="text-xs font-bold text-slate-300">F{floor}</span>
+                      <span className="text-[10px] text-slate-400 font-mono">{floorAg.rate}% avg</span>
+                    </div>
+                    {['A', 'B', 'C', 'D'].map(zone => {
+                      const key = `F${floor}-Z${zone}`;
+                      const zData = floorUtil[key];
+                      if (!zData) return null;
+                      
+                      // Using a consistent dark color palette for zones
+                      const bgMap: Record<string, string> = {
+                        'A': 'bg-indigo-500',
+                        'B': 'bg-sky-500',
+                        'C': 'bg-emerald-500',
+                        'D': 'bg-amber-500'
+                      };
+                      const bgColor = bgMap[zone];
+
+                      return (
+                        <div key={key} className="flex items-center gap-3 text-xs">
+                          <span className="w-5 text-right text-[10px] text-slate-500 font-mono">Z{zone}</span>
+                          <div className="flex-1 h-3.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${zData.rate}%` }}
+                              transition={{ duration: 1, ease: 'easeOut' }}
+                              className={`h-full ${bgColor} rounded-full`}
+                            />
+                          </div>
+                          <span className="w-8 text-[10px] text-slate-300 font-mono text-right">{zData.rate}%</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })
+            )}
+          </div>
         </div>
       </div>
 

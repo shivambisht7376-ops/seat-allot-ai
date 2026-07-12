@@ -15,9 +15,9 @@ const SEGMENTS = [
 export function StatusDonutChart({ stats }: Props) {
   const resigned = stats.totalEmployees - stats.activeEmployees - stats.newJoiners;
   const segments = [
-    { label: 'Active',     value: stats.activeEmployees, color: '#10b981' },
-    { label: 'New Joiner', value: stats.newJoiners,      color: '#f59e0b' },
-    { label: 'Resigned',   value: Math.max(resigned, 0), color: '#94a3b8' },
+    { label: 'Active',     value: stats.activeEmployees, color: '#34d399' }, // emerald-400
+    { label: 'New Joiner', value: stats.newJoiners,      color: '#fbbf24' }, // amber-400
+    { label: 'Resigned',   value: Math.max(resigned, 0), color: '#52525b' }, // zinc-600
   ].filter(s => s.value > 0);
 
   const total = segments.reduce((s, seg) => s + seg.value, 0);
@@ -58,12 +58,16 @@ export function StatusDonutChart({ stats }: Props) {
 
   return (
     <div className="flex items-center gap-6">
-      <svg width={160} height={160} viewBox="0 0 160 160">
-        {arcs}
-        {/* Centre label */}
-        <text x={CX} y={CY - 4}  textAnchor="middle" fontSize={18} fontWeight={800} fill="#0f172a">{total.toLocaleString()}</text>
-        <text x={CX} y={CY + 14} textAnchor="middle" fontSize={9}  fontWeight={500} fill="#94a3b8">employees</text>
-      </svg>
+      <div className="relative w-40 h-40 shrink-0">
+        <svg viewBox="0 0 160 160" className="w-full h-full drop-shadow-lg">
+          <circle cx={CX} cy={CY} r={R} fill="transparent" />
+          {arcs}
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none drop-shadow-md">
+          <span className="text-xl font-extrabold text-white">{total.toLocaleString()}</span>
+          <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">employees</span>
+        </div>
+      </div>
 
       {/* Legend */}
       <div className="space-y-2.5">
@@ -71,7 +75,7 @@ export function StatusDonutChart({ stats }: Props) {
           <div key={seg.label} className="flex items-center gap-2.5">
             <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: seg.color }} />
             <div>
-              <p className="text-xs font-semibold text-slate-700">{seg.label}</p>
+              <p className="text-xs font-semibold text-slate-200">{seg.label}</p>
               <p className="text-[10px] text-slate-400 font-mono">
                 {seg.value.toLocaleString()} &nbsp;({Math.round((seg.value / total) * 100)}%)
               </p>

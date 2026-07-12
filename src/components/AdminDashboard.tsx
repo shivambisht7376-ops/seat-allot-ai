@@ -49,31 +49,31 @@ export function AdminDashboard() {
   useEffect(() => { fetchGlobal(); }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans antialiased">
+    <div className="min-h-screen gradient-bg flex flex-col font-sans antialiased text-slate-100">
 
       {/* Topbar */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+      <header className="glass-panel sticky top-0 z-40 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-gradient-to-br from-violet-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-sm">
+            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
               <Building2 className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="font-extrabold text-sm text-slate-900 block">Seat Allot AI</span>
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Admin Console</span>
+              <span className="font-extrabold text-sm text-white block tracking-wide">Seat Allot AI</span>
+              <span className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest block">Admin Console</span>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <button onClick={fetchGlobal} className="p-1.5 border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-slate-600 transition cursor-pointer">
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-blue-500' : ''}`} />
+            <button onClick={fetchGlobal} className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-smooth cursor-pointer">
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-indigo-400' : ''}`} />
             </button>
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-violet-50 border border-violet-200 rounded-lg">
-              <Shield className="w-3.5 h-3.5 text-violet-600" />
-              <span className="text-xs font-bold text-violet-700">{user?.name}</span>
-              <span className="text-[9px] bg-violet-100 text-violet-600 px-1.5 py-0.5 rounded-full font-bold">ADMIN</span>
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
+              <Shield className="w-3.5 h-3.5 text-indigo-400" />
+              <span className="text-xs font-bold text-indigo-200">{user?.name}</span>
+              <span className="text-[9px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide">ADMIN</span>
             </div>
-            <button onClick={logout} className="p-1.5 border border-slate-200 hover:bg-red-50 hover:border-red-200 rounded-lg text-slate-400 hover:text-red-500 transition cursor-pointer" title="Sign out">
+            <button onClick={logout} className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-smooth cursor-pointer" title="Sign out">
               <LogOut className="w-4 h-4" />
             </button>
           </div>
@@ -83,7 +83,7 @@ export function AdminDashboard() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex flex-col gap-6">
 
         {/* Tab Bar */}
-        <div className="border-b border-slate-200 flex flex-wrap gap-1 text-sm font-semibold text-slate-500 pb-px">
+        <div className="flex flex-wrap gap-2 text-sm font-semibold p-1 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 w-max">
           {TABS.map(t => {
             const Icon = t.icon;
             return (
@@ -91,16 +91,26 @@ export function AdminDashboard() {
                 key={t.id}
                 id={`admin-tab-${t.id}`}
                 onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2 px-4 py-3 border-b-2 transition cursor-pointer rounded-t-lg ${
+                className={`flex items-center gap-2 px-4 py-2.5 transition-smooth cursor-pointer rounded-lg relative overflow-hidden ${
                   tab === t.id
-                    ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
-                    : 'border-transparent hover:text-slate-900 hover:border-slate-200'
+                    ? 'text-white bg-white/10 shadow-lg'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                 }`}
               >
-                <Icon className="w-4 h-4" />
-                <span>{t.label}</span>
+                {tab === t.id && (
+                  <motion.div
+                    layoutId="activeTab"
+                    className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-white/10 rounded-lg"
+                    initial={false}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-2">
+                  <Icon className="w-4 h-4" />
+                  <span>{t.label}</span>
+                </span>
                 {t.id === 'queue' && stats && stats.unassignedJoiners > 0 && (
-                  <span className="ml-1 bg-amber-500 text-white font-mono font-bold text-[9px] w-4 h-4 flex items-center justify-center rounded-full">
+                  <span className="relative z-10 ml-1 bg-rose-500 text-white font-mono font-bold text-[9px] w-4 h-4 flex items-center justify-center rounded-full shadow-lg shadow-rose-500/30">
                     {stats.unassignedJoiners > 9 ? '9+' : stats.unassignedJoiners}
                   </span>
                 )}
