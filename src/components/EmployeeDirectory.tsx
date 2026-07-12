@@ -200,16 +200,7 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
     if (!reassignSeatId.trim()) return;
     setReassignLoading(true);
     try {
-      // Step 1: Release old seat if they have one
-      if (oldSeatId) {
-        await fetch('/api/seats/release', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...(authHeader as any) },
-          body: JSON.stringify({ employeeId: empId })
-        });
-      }
-
-      // Step 2: Allocate new seat
+      // Allocate new seat (backend automatically releases old seat)
       const res = await fetch('/api/seats/allocate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(authHeader as any) },

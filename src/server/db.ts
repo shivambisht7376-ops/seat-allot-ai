@@ -76,7 +76,7 @@ function toSeat(s: SeatWithAssignment): Seat {
 
 const USER_INCLUDE = {
   project: { select: { code: true } },
-  seatAssignment: { include: { seat: { select: { label: true } } } },
+  seatAssignment: { include: { seat: { select: { id: true, label: true } } } },
 } as const;
 
 // ── DbService ────────────────────────────────────────────────────────────────
