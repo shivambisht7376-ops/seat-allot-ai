@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Briefcase, RefreshCw, Layers, CheckCircle, AlertTriangle, Sparkles } from 'lucide-react';
 import { Project, Employee } from '../types.js';
+import { useAuthHeader } from '../context/AuthContext.js';
 
 interface ProjectManagerProps {
   id: string;
@@ -15,6 +16,7 @@ interface ProjectManagerProps {
 }
 
 export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged }: ProjectManagerProps) {
+  const authHeader = useAuthHeader();
   const [loading, setLoading] = useState<boolean>(false);
   const [projectStats, setProjectStats] = useState<Record<string, { count: number, seated: number }>>({});
   
@@ -30,7 +32,7 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
     setLoading(true);
     try {
       // Fetch stats of project memberships from directory
-      const res = await fetch('/api/employees?limit=5000');
+      const res = await fetch('/api/employees?limit=5000', { headers: authHeader as any });
       if (res.ok) {
         const result = await res.json();
         const roster: Employee[] = result.data;
@@ -75,7 +77,7 @@ export function ProjectManager({ id, projects, onProjectCreated, onStatsChanged 
     try {
       const res = await fetch('/api/projects', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(authHeader as any) },
         body: JSON.stringify({
           code: `PROJ-${code.trim().toUpperCase()}`,
           name: name.trim(),
