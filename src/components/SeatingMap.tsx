@@ -135,6 +135,57 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
     }
   };
 
+  // Smart Search: Auto-navigate and select seat if highlightTerm matches an employee or seat
+  useEffect(() => {
+    if (!highlightTerm || highlightTerm.length < 3) return;
+    
+    const handler = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/employees?textSearch=${highlightTerm}&limit=1`, { headers: authHeader as any });
+        const data = await res.json();
+        
+        let targetSeatId: string | null = null;
+        let foundEmpId: string | null = null;
+        
+        if (data?.data?.length > 0) {
+          targetSeatId = data.data[0].seatId;
+          foundEmpId = data.data[0].id;
+        }
+        
+        // If no employee found, maybe it's a direct seat ID search (e.g. F2-ZA-349)
+        if (!targetSeatId) {
+          const match = highlightTerm.match(/^F(\d)-Z([A-D])-\d{3}$/i);
+          if (match) {
+            targetSeatId = highlightTerm.toUpperCase();
+          }
+        }
+        
+        if (targetSeatId) {
+          const match = targetSeatId.match(/F(\d)-Z([A-D])-/i);
+          if (match) {
+            const f = parseInt(match[1]);
+            const z = match[2].toUpperCase();
+            
+            if (selectedFloor !== f) setSelectedFloor(f);
+            if (selectedZone !== z) setSelectedZone(z);
+            
+            setSelectedSeat({
+              id: targetSeatId,
+              floor: f,
+              zone: z,
+              number: parseInt(targetSeatId.split('-')[2]),
+              employeeId: foundEmpId
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Smart search error:', err);
+      }
+    }, 500);
+    
+    return () => clearTimeout(handler);
+  }, [highlightTerm, authHeader, selectedFloor, selectedZone]);
+
   // Helper: map a project code to color for seat badge
   const getProjectColor = (projectCode: string | null) => {
     if (!projectCode) return '#cbd5e1'; // slate-300
@@ -228,7 +279,7 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
             <span>Occupied Seat</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded-sm border-2 border-yellow-400 bg-white"></div>
+            <div className="w-3.5 h-3.5 rounded-sm border-2 border-purple-500 bg-purple-100"></div>
             <span>Search Highlight</span>
           </div>
           <div className="flex items-center gap-1.5 ml-auto">
@@ -266,9 +317,9 @@ export function SeatingMap({ id, projects, onStatsChanged, readOnly = false }: S
                       onClick={() => setSelectedSeat(seat)}
                       className={`w-[42px] h-[24px] rounded-sm flex items-center justify-center text-[7px] font-bold cursor-pointer relative transition-all ${
                         isSelected 
-                          ? 'ring-2 ring-blue-600 ring-offset-2 z-20 scale-110'
+                          ? 'ring-2 ring-purple-600 bg-purple-100 ring-offset-2 z-20 scale-110 text-purple-900'
                           : isHighlighted 
-                          ? 'ring-2 ring-yellow-400 ring-offset-1 z-10 animate-pulse'
+                          ? 'ring-2 ring-purple-400 bg-purple-50 ring-offset-1 z-10 animate-pulse text-purple-800'
                           : isOccupied 
                           ? 'bg-blue-100 hover:bg-blue-200 border border-blue-300 text-blue-700' 
                           : 'bg-white hover:bg-slate-100 border border-slate-200 text-slate-400'
