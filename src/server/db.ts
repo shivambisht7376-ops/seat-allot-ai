@@ -521,8 +521,9 @@ export const DbService = {
     // Auto-generate employee code if not supplied
     let employeeCode = data.employeeCode?.trim().toUpperCase() ?? '';
     if (!employeeCode) {
-      const count = await prisma.user.count({ where: { tenantId: TENANT_ID } });
-      employeeCode = `EMP-${String(count + 1).padStart(4, '0')}`;
+      // Use a random 6-character alphanumeric string to prevent collisions
+      const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
+      employeeCode = `EMP-${randomStr}`;
     }
 
     // Ensure uniqueness
