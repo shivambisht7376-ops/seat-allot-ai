@@ -60,7 +60,49 @@ app.post('/api/projects', async (req: Request, res: Response) => {
       return;
     }
     const newProj = await DbService.createProject({ code, name, lead, targetZone });
-    res.json(newProj);
+    res.status(201).json(newProj);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/projects/:code — single project
+app.get('/api/projects/:code', async (req: Request, res: Response) => {
+  try {
+    const proj = await DbService.getProjectByCode(req.params.code);
+    if (!proj) {
+      res.status(404).json({ error: `Project ${req.params.code} not found.` });
+      return;
+    }
+    res.json(proj);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PATCH /api/projects/:code — update a project
+app.patch('/api/projects/:code', async (req: Request, res: Response) => {
+  try {
+    const result = await DbService.updateProject(req.params.code, req.body);
+    if (!result.success) {
+      res.status(404).json({ error: result.message });
+      return;
+    }
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /api/projects/:code — delete a project (only if no members)
+app.delete('/api/projects/:code', async (req: Request, res: Response) => {
+  try {
+    const result = await DbService.deleteProject(req.params.code);
+    if (!result.success) {
+      res.status(result.message.includes('not found') ? 404 : 409).json({ error: result.message });
+      return;
+    }
+    res.json(result);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -110,13 +152,124 @@ app.patch('/api/employees/:id', async (req: Request, res: Response) => {
   }
 });
 
-// 4. Seats
+// POST /api/employees — create a new employee
+app.post('/api/employees', async (req: Request, res: Response) => {
+  try {
+    const { name, email, role, department, status, joinDate, projectCode, employeeCode } = req.body;
+    if (!name || !email || !role || !department || !joinDate) {
+      res.status(400).json({ error: 'Missing required fields: name, email, role, department, joinDate' });
+      return;
+    }
+    const validStatuses = ['Active', 'New Joiner', 'Resigned'];
+    if (status && !validStatuses.includes(status)) {
+      res.status(400).json({ error: `status must be one of: ${validStatuses.join(', ')}` });
+      return;
+    }
+    const result = await DbService.createEmployee({
+      name, email, role, department,
+      status: status ?? 'Active',
+      joinDate, projectCode, employeeCode,
+    });
+    if (!result.success) {
+      res.status(409).json({ error: result.message });
+      return;
+    }
+    res.status(201).json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /api/employees/:id — permanently delete an employee
+app.delete('/api/employees/:id', async (req: Request, res: Response) => {
+  try {
+    const result = await DbService.deleteEmployee(req.params.id);
+    if (!result.success) {
+      res.status(404).json({ error: result.message });
+      return;
+    }
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/seats — all seats for a floor+zone
 app.get('/api/seats', async (req: Request, res: Response) => {
   try {
     const floor = parseInt(req.query.floor as string || '1', 10);
     const zone  = (req.query.zone as string || 'A').toUpperCase();
+    if (isNaN(floor) || floor < 1 || floor > 4) {
+      res.status(400).json({ error: 'floor must be an integer between 1 and 4' });
+      return;
+    }
     const seats = await DbService.getSeats(floor, zone);
     res.json(seats);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/seats — create a new physical seat
+app.post('/api/seats', async (req: Request, res: Response) => {
+  try {
+    const { floor, zone, number, type } = req.body;
+    if (!floor || !zone || !number) {
+      res.status(400).json({ error: 'Missing required fields: floor, zone, number' });
+      return;
+    }
+    if (isNaN(parseInt(floor)) || isNaN(parseInt(number))) {
+      res.status(400).json({ error: 'floor and number must be integers' });
+      return;
+    }
+    const result = await DbService.createSeat({ floor: parseInt(floor), zone, number: parseInt(number), type });
+    if (!result.success) {
+      res.status(409).json({ error: result.message });
+      return;
+    }
+    res.status(201).json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/seats/:id — single seat by label (e.g. F1-ZA-001)
+app.get('/api/seats/:id', async (req: Request, res: Response) => {
+  try {
+    const seat = await DbService.getSeatByLabel(req.params.id);
+    if (!seat) {
+      res.status(404).json({ error: `Seat ${req.params.id} not found.` });
+      return;
+    }
+    res.json(seat);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PATCH /api/seats/:id — update seat type or status
+app.patch('/api/seats/:id', async (req: Request, res: Response) => {
+  try {
+    const result = await DbService.updateSeat(req.params.id, req.body);
+    if (!result.success) {
+      res.status(result.message.includes('not found') ? 404 : 400).json({ error: result.message });
+      return;
+    }
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /api/seats/:id — delete a vacant seat
+app.delete('/api/seats/:id', async (req: Request, res: Response) => {
+  try {
+    const result = await DbService.deleteSeat(req.params.id);
+    if (!result.success) {
+      res.status(result.message.includes('not found') ? 404 : 409).json({ error: result.message });
+      return;
+    }
+    res.json(result);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

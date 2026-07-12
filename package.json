@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "tsx server.ts",
     "seed": "tsx prisma/seed.ts",
+    "test": "vitest run --reporter=verbose",
+    "test:coverage": "vitest run --coverage",
     "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "preview": "vite preview",
@@ -35,12 +37,22 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.14.0",
     "@types/pg": "^8.20.0",
+    "@types/supertest": "^7.2.0",
+    "@vitest/coverage-v8": "^4.1.10",
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.25.0",
     "prisma": "^7.8.0",
+    "supertest": "^7.2.2",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
-    "vite": "^6.2.3"
+    "vite": "^6.2.3",
+    "vitest": "^4.1.10"
+  },
+  "vitest": {
+    "environment": "node",
+    "testTimeout": 30000,
+    "hookTimeout": 30000,
+    "include": ["tests/**/*.test.ts"]
   }
 }
