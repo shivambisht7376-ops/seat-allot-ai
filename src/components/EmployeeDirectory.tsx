@@ -36,6 +36,20 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
   // Active Selected Employee for editing/profile modal
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [updateProjectLoading, setUpdateProjectLoading] = useState<boolean>(false);
+  
+  // Add Employee State
+  const [isAddingEmployee, setIsAddingEmployee] = useState<boolean>(false);
+  const [addName, setAddName] = useState('');
+  const [addEmail, setAddEmail] = useState('');
+  const [addRole, setAddRole] = useState('');
+  const [addDepartment, setAddDepartment] = useState('');
+  const [addJoinDate, setAddJoinDate] = useState('');
+  const [addProjectCode, setAddProjectCode] = useState('');
+  const [addLoading, setAddLoading] = useState(false);
+
+  // Seat Reassignment State
+  const [reassignSeatId, setReassignSeatId] = useState('');
+  const [reassignLoading, setReassignLoading] = useState(false);
 
   const fetchEmployees = async () => {
     setLoading(true);
@@ -130,7 +144,85 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
     } catch (err) { console.error(err); }
     finally { setUpdateProjectLoading(false); }
   };
+  const handleAddEmployeeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!addName || !addEmail || !addRole || !addDepartment || !addJoinDate) return;
+    setAddLoading(true);
+    try {
+      const res = await fetch('/api/employees', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(authHeader as any) },
+        body: JSON.stringify({
+          name: addName.trim(),
+          email: addEmail.trim(),
+          role: addRole.trim(),
+          department: addDepartment.trim(),
+          joinDate: addJoinDate,
+          projectCode: addProjectCode.trim() || undefined,
+          status: 'Active'
+        })
+      });
+      if (res.ok) {
+        setIsAddingEmployee(false);
+        setAddName('');
+        setAddEmail('');
+        setAddRole('');
+        setAddDepartment('');
+        setAddJoinDate('');
+        setAddProjectCode('');
+        fetchEmployees();
+        onStatsChanged();
+      } else {
+        const d = await res.json();
+        alert(`Error creating employee: ${d.error}`);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setAddLoading(false);
+    }
+  };
 
+  const handleReassignSeatSubmit = async (empId: string, oldSeatId: string | null) => {
+    if (!reassignSeatId.trim()) return;
+    setReassignLoading(true);
+    try {
+      // Step 1: Release old seat if they have one
+      if (oldSeatId) {
+        await fetch('/api/seats/release', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(authHeader as any) },
+          body: JSON.stringify({ employeeId: empId })
+        });
+      }
+
+      // Step 2: Allocate new seat
+      const res = await fetch('/api/seats/allocate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(authHeader as any) },
+        body: JSON.stringify({ employeeId: empId, seatId: reassignSeatId.trim().toUpperCase() })
+      });
+
+      if (res.ok) {
+        setReassignSeatId('');
+        fetchEmployees();
+        onStatsChanged();
+        if (editingEmployee && editingEmployee.id === empId) {
+          setEditingEmployee(prev => prev ? { ...prev, seatId: reassignSeatId.trim().toUpperCase() } : null);
+        }
+      } else {
+        const d = await res.json();
+        alert(`Failed to allocate seat: ${d.error}`);
+        // If release succeeded but allocate failed, refresh anyway
+        fetchEmployees();
+        onStatsChanged();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setReassignLoading(false);
+    }
+  };
   const currentPage = Math.floor(offset / limit) + 1;
   const totalPages = Math.ceil(total / limit) || 1;
 
@@ -145,19 +237,16 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
             <p className="text-xs text-slate-500 font-sans mt-0.5">Manage details and assignments for {total.toLocaleString()} employees</p>
           </div>
           
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             {/* Search Input */}
-            <div className="relative flex-1 sm:w-64">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
-                <Search className="w-4 h-4" />
-              </span>
-              <input
-                type="text"
-                id="directory-search-input"
+            <div className="relative flex-1 sm:flex-none">
+              <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+              <input 
+                type="text" 
+                placeholder="Search name, ID, or role..." 
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                placeholder="Search name, ID, role..."
-                className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white transition"
+                className="w-full sm:w-64 bg-slate-50 border border-slate-200 rounded-lg py-2 pl-9 pr-3 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white transition"
               />
             </div>
 
@@ -165,13 +254,21 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
             <button
               id="btn-toggle-filters"
               onClick={() => setShowFilters(!showFilters)}
-              className={`p-2 border rounded-lg hover:bg-slate-50 transition flex items-center gap-1.5 text-sm font-semibold ${
-                showFilters ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-white text-slate-600 border-slate-200'
-              }`}
+              className={`p-2 border rounded-lg transition cursor-pointer ${showFilters ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
+              title="Advanced Filters"
             >
               <SlidersHorizontal className="w-4 h-4" />
-              <span className="hidden md:inline">Filters</span>
             </button>
+
+            {canManage && (
+              <button
+                onClick={() => setIsAddingEmployee(true)}
+                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-bold transition shadow-xs"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>Add Employee</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -425,7 +522,7 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
               <div>
                 <label className="text-slate-400 text-xs block mb-1 font-sans">Current Seating Desk</label>
                 {editingEmployee.seatId ? (
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200 font-mono text-xs">
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200 font-mono text-xs mb-2">
                     <div>
                       <span className="font-bold text-slate-800">{editingEmployee.seatId}</span>
                       <span className="text-slate-400 text-[10px] ml-2 font-sans">(Physical Slot Allocated)</span>
@@ -439,11 +536,28 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
                     </button>
                   </div>
                 ) : (
-                  <div className="p-3 bg-rose-50 border border-rose-100 rounded-lg text-rose-700 text-xs flex justify-between items-center font-sans">
+                  <div className="p-3 bg-rose-50 border border-rose-100 rounded-lg text-rose-700 text-xs flex justify-between items-center font-sans mb-2">
                     <span className="font-semibold">No seat currently allocated</span>
                     <span className="text-[10px] bg-white border border-rose-200 text-rose-800 px-2 py-0.5 rounded font-bold uppercase">Pending</span>
                   </div>
                 )}
+                <div className="flex gap-2 items-center mt-2">
+                  <input
+                    type="text"
+                    value={reassignSeatId}
+                    onChange={(e) => setReassignSeatId(e.target.value)}
+                    placeholder="e.g. F1-ZA-005"
+                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-xs font-mono focus:ring-1 focus:ring-blue-500 uppercase"
+                  />
+                  <button
+                    disabled={!reassignSeatId.trim() || reassignLoading}
+                    onClick={() => handleReassignSeatSubmit(editingEmployee.id, editingEmployee.seatId)}
+                    className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition disabled:opacity-50 flex items-center gap-1"
+                  >
+                    {reassignLoading && <RefreshCw className="w-3 h-3 animate-spin" />}
+                    Assign
+                  </button>
+                </div>
               </div>
 
               <div>
@@ -472,6 +586,56 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
                 Close Profile
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Employee Modal */}
+      {isAddingEmployee && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-sm w-full p-6 relative">
+            <button onClick={() => setIsAddingEmployee(false)} className="absolute top-4 right-4 p-1.5 hover:bg-slate-100 rounded-lg text-slate-400">
+              <XIcon className="w-5 h-5" />
+            </button>
+            <h4 className="font-extrabold text-slate-900 mb-4 text-lg">Onboard Employee</h4>
+            <form onSubmit={handleAddEmployeeSubmit} className="space-y-4 text-xs font-sans">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Full Name</label>
+                <input required type="text" value={addName} onChange={e => setAddName(e.target.value)} placeholder="John Doe" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Email</label>
+                <input required type="email" value={addEmail} onChange={e => setAddEmail(e.target.value)} placeholder="john@enterprise.com" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-blue-500" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Role</label>
+                  <input required type="text" value={addRole} onChange={e => setAddRole(e.target.value)} placeholder="Developer" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Department</label>
+                  <input required type="text" value={addDepartment} onChange={e => setAddDepartment(e.target.value)} placeholder="Engineering" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-blue-500" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Join Date</label>
+                  <input required type="date" value={addJoinDate} onChange={e => setAddJoinDate(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Project Code</label>
+                  <select value={addProjectCode} onChange={e => setAddProjectCode(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-blue-500">
+                    <option value="">Unassigned</option>
+                    {projects.map(p => (
+                      <option key={p.code} value={p.code}>{p.code}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <button disabled={addLoading} type="submit" className="w-full mt-4 py-2 bg-blue-600 text-white rounded-lg font-bold flex items-center justify-center gap-2">
+                {addLoading && <RefreshCw className="w-3.5 h-3.5 animate-spin" />} Create Profile
+              </button>
+            </form>
           </div>
         </div>
       )}
