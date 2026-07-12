@@ -50,6 +50,19 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
   // Seat Reassignment State
   const [reassignSeatId, setReassignSeatId] = useState('');
   const [reassignLoading, setReassignLoading] = useState(false);
+  const [vacantSeats, setVacantSeats] = useState<any[]>([]);
+  const [loadingVacantSeats, setLoadingVacantSeats] = useState(false);
+
+  useEffect(() => {
+    if (editingEmployee) {
+      setLoadingVacantSeats(true);
+      fetch('/api/seats/vacant', { headers: authHeader as any })
+        .then(res => res.json())
+        .then(data => setVacantSeats(data || []))
+        .catch(err => console.error(err))
+        .finally(() => setLoadingVacantSeats(false));
+    }
+  }, [editingEmployee]);
 
   const fetchEmployees = async () => {
     setLoading(true);
@@ -542,13 +555,19 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
                   </div>
                 )}
                 <div className="flex gap-2 items-center mt-2">
-                  <input
-                    type="text"
+                  <select
                     value={reassignSeatId}
                     onChange={(e) => setReassignSeatId(e.target.value)}
-                    placeholder="e.g. F1-ZA-005"
-                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-xs font-mono focus:ring-1 focus:ring-blue-500 uppercase"
-                  />
+                    disabled={loadingVacantSeats}
+                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-xs font-mono focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">
+                      {loadingVacantSeats ? 'Loading seats...' : 'Select a vacant seat...'}
+                    </option>
+                    {vacantSeats.map(seat => (
+                      <option key={seat.id} value={seat.label}>{seat.label} ({seat.type})</option>
+                    ))}
+                  </select>
                   <button
                     disabled={!reassignSeatId.trim() || reassignLoading}
                     onClick={() => handleReassignSeatSubmit(editingEmployee.id, editingEmployee.seatId)}

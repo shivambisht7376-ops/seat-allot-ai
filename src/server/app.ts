@@ -178,6 +178,11 @@ export function createApp() {
     catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
+  app.get('/api/seats/vacant', async (_req: Request, res: Response) => {
+    try { res.json(await DbService.getVacantSeats()); }
+    catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
   app.post('/api/seats', requireRole('ADMIN', 'MANAGER'), async (req: Request, res: Response) => {
     try {
       const { floor, zone, number, type } = req.body;

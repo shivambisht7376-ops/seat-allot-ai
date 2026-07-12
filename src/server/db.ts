@@ -198,6 +198,14 @@ export const DbService = {
     return rows.map(toSeat);
   },
 
+  async getVacantSeats(): Promise<Seat[]> {
+    const rows = await prisma.seat.findMany({
+      where: { tenantId: TENANT_ID, status: 'AVAILABLE' },
+      orderBy: [{ floor: 'asc' }, { zone: 'asc' }, { number: 'asc' }],
+    });
+    return rows.map(toSeat);
+  },
+
   async getSeatMapUtilization(): Promise<Record<string, { total: number; occupied: number; rate: number }>> {
     const map: Record<string, { total: number; occupied: number; rate: number }> = {};
     for (let f = 1; f <= 4; f++) {
