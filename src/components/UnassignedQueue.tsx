@@ -20,15 +20,25 @@ export function UnassignedQueue({ id, onStatsChanged }: UnassignedQueueProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const [runningAuto, setRunningAuto] = useState<boolean>(false);
   const [resultsLog, setResultsLog] = useState<string[] | null>(null);
+  const [allocatedJoiners, setAllocatedJoiners] = useState<Employee[]>([]);
 
   const fetchUnassigned = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/employees?limit=500&isUnassigned=true&status=New%20Joiner', { headers: authHeader as any });
-      if (res.ok) {
-        const data = await res.json();
+      const [resUnassigned, resAllocated] = await Promise.all([
+        fetch('/api/employees?limit=500&isUnassigned=true&status=New%20Joiner', { headers: authHeader as any }),
+        fetch('/api/employees?limit=15&isUnassigned=false&status=New%20Joiner', { headers: authHeader as any })
+      ]);
+      
+      if (resUnassigned.ok) {
+        const data = await resUnassigned.json();
         setUnassigned(data.data);
         setTotal(data.total);
+      }
+      
+      if (resAllocated.ok) {
+        const data = await resAllocated.json();
+        setAllocatedJoiners(data.data);
       }
     } catch (err) {
       console.error(err);
@@ -156,6 +166,31 @@ export function UnassignedQueue({ id, onStatsChanged }: UnassignedQueueProps) {
             <p className="text-[11px] text-indigo-400 font-sans mt-1">
               All incoming new joiners have been assigned workspaces successfully.
             </p>
+          </div>
+        )}
+
+        {allocatedJoiners.length > 0 && (
+          <div className="mt-5 border-t border-slate-100 pt-4">
+             <h5 className="font-bold text-indigo-800 text-xs mb-3 flex items-center gap-1.5">
+               <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+               Recently Allocated Joiners
+             </h5>
+             <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+                {allocatedJoiners.slice(0, 10).map(emp => (
+                  <div key={emp.id} className="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-between text-xs hover:border-slate-300 transition duration-150 shadow-xs">
+                     <div className="pr-2 truncate">
+                       <div className="font-bold text-indigo-900 leading-tight truncate">{emp.name}</div>
+                       <div className="text-[10px] text-indigo-400 font-mono mt-0.5">{emp.id} • {emp.role}</div>
+                     </div>
+                     <div className="text-right flex-shrink-0">
+                       <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded font-bold block mb-1">
+                         Seat: {emp.seatId}
+                       </span>
+                       <span className="text-[10px] text-indigo-400 font-sans mt-0.5">Joined: {emp.joinDate}</span>
+                     </div>
+                  </div>
+                ))}
+             </div>
           </div>
         )}
       </div>
