@@ -131,13 +131,18 @@ export const DbService = {
     floor: number | null = null,
     zone = '',
     isUnassigned = false,
+    status = '',
   ): Promise<{ data: Employee[]; total: number }> {
 
     const where: any = { tenantId: TENANT_ID };
 
     if (isUnassigned) {
       where.seatAssignment = null;
-      where.status = { not: 'Resigned' };
+      if (!status) where.status = { not: 'Resigned' };
+    }
+
+    if (status) {
+      where.status = status;
     }
 
     if (textSearch) {

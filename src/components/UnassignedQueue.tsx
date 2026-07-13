@@ -24,7 +24,7 @@ export function UnassignedQueue({ id, onStatsChanged }: UnassignedQueueProps) {
   const fetchUnassigned = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/employees?limit=20&isUnassigned=true', { headers: authHeader as any });
+      const res = await fetch('/api/employees?limit=500&isUnassigned=true&status=New%20Joiner', { headers: authHeader as any });
       if (res.ok) {
         const data = await res.json();
         setUnassigned(data.data);

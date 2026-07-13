@@ -53,8 +53,8 @@ async function gatherQueryContext(queryText: string): Promise<any> {
     context.seatedEmployee = employee || 'None (Seat is currently vacant)';
   }
 
-  // Check for employee ID match (e.g. EMP-1234)
-  const empIdMatch = queryLower.match(/emp-\d{4}/);
+  // Check for employee ID match (e.g. EMP-1234 or EMP-7H9B2P)
+  const empIdMatch = queryLower.match(/emp-[a-z0-9]{4,6}/);
   if (empIdMatch) {
     const empId = empIdMatch[0].toUpperCase();
     const employee = await DbService.getEmployeeById(empId);
@@ -229,7 +229,7 @@ async function processOfflineFallback(queryText: string, context: any): Promise<
   }
 
   // 2. Check for Employee query
-  const empIdMatch = queryLower.match(/emp-\d{4}/);
+  const empIdMatch = queryLower.match(/emp-[a-z0-9]{4,6}/);
   if (empIdMatch) {
     const empId = empIdMatch[0].toUpperCase();
     const employee = await DbService.getEmployeeById(empId);
@@ -241,7 +241,24 @@ async function processOfflineFallback(queryText: string, context: any): Promise<
     return { answer, actionExecuted, suggestions };
   }
 
-  // 3. Check for general search keywords
+  // 3. Fuzzy search for employee details by name or other text
+  if (context.matchingEmployees && context.matchingEmployees.length > 0) {
+    const emp = context.matchingEmployees[0];
+    answer = `### 👤 Employee Profile: ${emp.name}\n\n* **ID**: \`${emp.id}\`\n* **Role**: ${emp.role}\n* **Department**: ${emp.department}\n* **Project Mapping**: \`${emp.projectCode || 'None'}\`\n* **Seat Assignment**: ${emp.seatId ? `**${emp.seatId}**` : '❌ **Unassigned (Needs Desk)**'}\n* **Status**: ${emp.status}`;
+    
+    if (context.matchingEmployees.length > 1) {
+      answer += `\n\n*Note: Found ${context.matchingEmployees.length - 1} other matching employees.*`;
+    }
+    
+    suggestions = [
+      `Allocate seat for ${emp.id}`,
+      `Who sits near ${emp.seatId || 'F1-ZA-001'}?`,
+      `Show stats for project ${emp.projectCode || 'Apollo'}`
+    ];
+    return { answer, actionExecuted, suggestions };
+  }
+
+  // 4. Check for general search keywords
   if (queryLower.includes('new joiner') || queryLower.includes('unassigned') || queryLower.includes('no seat')) {
     const unassigned = await DbService.getEmployees(5, 0, '', '', null, '', true);
     answer = `### 📋 Unassigned New Joiner Queue\n\nThere are currently **${context.globalStats.unassignedJoiners} new joiners** without a permanent desk assignment. Here are the top pending profiles:\n\n`;
@@ -269,8 +286,8 @@ async function processOfflineFallback(queryText: string, context: any): Promise<
     return { answer, actionExecuted, suggestions };
   }
 
-  // 5. Seating allocation requests offline parsing (e.g., "allocate seat F1-ZA-005 to EMP-0012")
-  const allocateMatch = queryLower.match(/allocate\s+(?:seat\s+)?(f[1-4]-z[a-d]-\d{3})\s+(?:to\s+)?(?:employee\s+)?(emp-\d{4})/);
+  // 6. Seating allocation requests offline parsing (e.g., "allocate seat F1-ZA-005 to EMP-0012")
+  const allocateMatch = queryLower.match(/allocate\s+(?:seat\s+)?(f[1-4]-z[a-d]-\d{3})\s+(?:to\s+)?(?:employee\s+)?(emp-[a-z0-9]{4,6})/);
   if (allocateMatch) {
     const seatId = allocateMatch[1].toUpperCase();
     const empId = allocateMatch[2].toUpperCase();
@@ -285,8 +302,8 @@ async function processOfflineFallback(queryText: string, context: any): Promise<
     return { answer, actionExecuted, updatedEmployee, suggestions };
   }
 
-  // 6. Release desk offline parsing
-  const releaseMatch = queryLower.match(/(?:release|free|vacate)\s+(?:seat\s+for\s+)?(?:employee\s+)?(emp-\d{4})/);
+  // 7. Release desk offline parsing
+  const releaseMatch = queryLower.match(/(?:release|free|vacate)\s+(?:seat\s+for\s+)?(?:employee\s+)?(emp-[a-z0-9]{4,6})/);
   if (releaseMatch) {
     const empId = releaseMatch[1].toUpperCase();
     const emp = await DbService.getEmployeeById(empId);

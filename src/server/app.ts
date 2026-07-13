@@ -88,7 +88,8 @@ export function createApp() {
       const floor        = req.query.floor ? parseInt(req.query.floor as string, 10) : null;
       const zone         = (req.query.zone as string || '');
       const isUnassigned = req.query.isUnassigned === 'true';
-      res.json(await DbService.getEmployees(limit, offset, textSearch, projectCode, floor, zone, isUnassigned));
+      const status       = (req.query.status as string || '');
+      res.json(await DbService.getEmployees(limit, offset, textSearch, projectCode, floor, zone, isUnassigned, status));
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
