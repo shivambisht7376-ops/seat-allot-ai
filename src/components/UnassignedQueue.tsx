@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { UserCheck, AlertTriangle, Play, Sparkles, X, ChevronRight, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { UserCheck, Sparkles, RefreshCw } from 'lucide-react';
 import { Employee } from '../types.js';
 import { useAuthHeader } from '../context/AuthContext.js';
 
@@ -13,32 +13,20 @@ interface UnassignedQueueProps {
   onStatsChanged: () => void;
 }
 
-export function UnassignedQueue({ id, onStatsChanged }: UnassignedQueueProps) {
+export function UnassignedQueue({ id }: UnassignedQueueProps) {
   const authHeader = useAuthHeader();
-  const [unassigned, setUnassigned] = useState<Employee[]>([]);
+  const [joiners, setJoiners] = useState<Employee[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [runningAuto, setRunningAuto] = useState<boolean>(false);
-  const [resultsLog, setResultsLog] = useState<string[] | null>(null);
-  const [allocatedJoiners, setAllocatedJoiners] = useState<Employee[]>([]);
 
-  const fetchUnassigned = async () => {
+  const fetchJoiners = async () => {
     setLoading(true);
     try {
-      const [resUnassigned, resAllocated] = await Promise.all([
-        fetch('/api/employees?limit=500&isUnassigned=true', { headers: authHeader as any }),
-        fetch('/api/employees?limit=15&isUnassigned=false&status=New%20Joiner', { headers: authHeader as any })
-      ]);
-      
-      if (resUnassigned.ok) {
-        const data = await resUnassigned.json();
-        setUnassigned(data.data);
+      const res = await fetch('/api/employees?limit=500&status=New%20Joiner', { headers: authHeader as any });
+      if (res.ok) {
+        const data = await res.json();
+        setJoiners(data.data);
         setTotal(data.total);
-      }
-      
-      if (resAllocated.ok) {
-        const data = await resAllocated.json();
-        setAllocatedJoiners(data.data);
       }
     } catch (err) {
       console.error(err);
@@ -48,156 +36,73 @@ export function UnassignedQueue({ id, onStatsChanged }: UnassignedQueueProps) {
   };
 
   useEffect(() => {
-    fetchUnassigned();
+    fetchJoiners();
   }, []);
 
-  const handleAutoAllocate = async () => {
-    if (!confirm('Are you sure you want to run the intelligent auto-allocation engine? This will assign vacant desks near designated project zones.')) return;
-    setRunningAuto(true);
-    try {
-      const res = await fetch('/api/seats/auto-allocate', {
-        method: 'POST',
-        headers: { ...(authHeader as any) },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setResultsLog(data.details);
-        fetchUnassigned();
-        onStatsChanged();
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setRunningAuto(false);
-    }
-  };
-
   return (
-    <div id={id} className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col justify-between h-full">
-      <div>
-        <div className="flex justify-between items-start mb-4">
-          <div>
-            <h4 className="text-base font-bold text-indigo-900 font-sans flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-              Pending Desk Allocations
-            </h4>
-            <p className="text-xs text-indigo-500 font-sans mt-0.5">
-              {total} unallocated employees pending a desk mapping
-            </p>
-          </div>
-
-          <button
-            id="btn-auto-allocate-queue"
-            onClick={handleAutoAllocate}
-            disabled={total === 0 || runningAuto}
-            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-100 disabled:text-indigo-400 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer"
-          >
-            {runningAuto ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <Sparkles className="w-3.5 h-3.5" />
-            )}
-            <span>Auto-Allocate</span>
-          </button>
+    <div id={id} className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col h-full min-h-[500px]">
+      <div className="flex justify-between items-start mb-6">
+        <div>
+          <h4 className="text-lg font-bold text-indigo-900 font-sans flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-amber-500" />
+            All New Joiners
+          </h4>
+          <p className="text-sm text-indigo-500 font-sans mt-0.5">
+            {total} recently onboarded employees across the organization
+          </p>
         </div>
+        <button
+          onClick={fetchJoiners}
+          className="p-2 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+          title="Refresh"
+        >
+          <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+        </button>
+      </div>
 
-        {resultsLog && (
-          <div className="mb-4 bg-slate-50 border border-slate-200 rounded-lg p-3 relative text-xs">
-            <button
-              onClick={() => setResultsLog(null)}
-              className="absolute top-2 right-2 text-indigo-400 hover:text-indigo-600 p-0.5"
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-12 gap-2 flex-1">
+          <RefreshCw className="w-8 h-8 animate-spin text-indigo-300" />
+          <span className="text-sm text-indigo-400 font-sans">Loading joiners...</span>
+        </div>
+      ) : joiners.length > 0 ? (
+        <div className="space-y-3 overflow-y-auto pr-2 flex-1">
+          {joiners.map(emp => (
+            <div
+              key={emp.id}
+              className="p-4 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between hover:border-slate-300 transition duration-150 shadow-sm"
             >
-              <X className="w-4 h-4" />
-            </button>
-            <h5 className="font-bold text-indigo-800 flex items-center gap-1.5 mb-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-              Allocation Engine Results:
-            </h5>
-            <div className="space-y-1 max-h-[140px] overflow-y-auto divide-y divide-slate-100 font-sans text-indigo-600">
-              {resultsLog.length > 0 ? (
-                resultsLog.map((log, i) => (
-                  <div key={i} className="py-1 text-[11px] leading-relaxed">
-                    {log}
-                  </div>
-                ))
-              ) : (
-                <div className="py-1 text-indigo-400 italic">
-                  All systems cleared. No allocations processed.
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-lg border border-indigo-200">
+                  {emp.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0,2)}
                 </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-12 gap-2">
-            <RefreshCw className="w-6 h-6 animate-spin text-indigo-300" />
-            <span className="text-xs text-indigo-400 font-sans">Loading incoming queue...</span>
-          </div>
-        ) : unassigned.length > 0 ? (
-          <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
-            {unassigned.map(emp => (
-              <div
-                key={emp.id}
-                id={`queue-item-${emp.id}`}
-                className="p-3 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between text-xs hover:border-slate-300 transition duration-150"
-              >
-                <div className="pr-2 truncate">
-                  <div className="font-bold text-indigo-900 leading-tight truncate">{emp.name}</div>
-                  <div className="text-[10px] text-indigo-400 font-mono mt-0.5">{emp.id} • {emp.role}</div>
-                  <div className="text-[10px] text-indigo-400 font-sans mt-0.5">Joined: {emp.joinDate}</div>
-                </div>
-
-                <div className="text-right flex-shrink-0">
-                  <span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-100 rounded text-[10px] font-bold uppercase block mb-1">
-                    {emp.status === 'New Joiner' ? 'Joiner' : 'Unassigned'}
-                  </span>
-                  <span className="text-[10px] bg-slate-200/60 text-indigo-600 border border-slate-300/40 px-1.5 py-0.5 rounded font-bold">
-                    {emp.projectCode || 'No Project'}
-                  </span>
+                <div>
+                  <div className="font-bold text-indigo-900 text-sm leading-tight">{emp.name}</div>
+                  <div className="text-xs text-indigo-500 mt-1 font-mono">{emp.id} <span className="font-sans text-slate-400 mx-1">•</span> <span className="font-sans">{emp.role}</span></div>
+                  <div className="text-[11px] text-indigo-400 font-sans mt-1">Joined: <span className="font-medium">{emp.joinDate}</span></div>
                 </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="bg-slate-50 border border-dashed border-slate-200 rounded-lg p-8 flex flex-col items-center text-center">
-            <UserCheck className="w-8 h-8 text-indigo-400 mb-2" />
-            <h5 className="font-bold text-indigo-700 text-xs">Queue Cleared</h5>
-            <p className="text-[11px] text-indigo-400 font-sans mt-1">
-              All incoming employees have been assigned workspaces successfully.
-            </p>
-          </div>
-        )}
 
-        {allocatedJoiners.length > 0 && (
-          <div className="mt-5 border-t border-slate-100 pt-4">
-             <h5 className="font-bold text-indigo-800 text-xs mb-3 flex items-center gap-1.5">
-               <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-               Recently Allocated Joiners
-             </h5>
-             <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
-                {allocatedJoiners.slice(0, 10).map(emp => (
-                  <div key={emp.id} className="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-between text-xs hover:border-slate-300 transition duration-150 shadow-xs">
-                     <div className="pr-2 truncate">
-                       <div className="font-bold text-indigo-900 leading-tight truncate">{emp.name}</div>
-                       <div className="text-[10px] text-indigo-400 font-mono mt-0.5">{emp.id} • {emp.role}</div>
-                     </div>
-                     <div className="text-right flex-shrink-0">
-                       <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded font-bold block mb-1">
-                         Seat: {emp.seatId}
-                       </span>
-                       <span className="text-[10px] text-indigo-400 font-sans mt-0.5">Joined: {emp.joinDate}</span>
-                     </div>
-                  </div>
-                ))}
-             </div>
-          </div>
-        )}
-      </div>
-
-      <div className="text-[10px] text-indigo-400 text-center font-sans mt-4 pt-2 border-t border-slate-100">
-        Engine prioritizes vacant seats mapped to preferred project zones.
-      </div>
+              <div className="text-right">
+                <span className={`px-3 py-1.5 border rounded-md text-xs font-bold block mb-2 shadow-xs ${emp.seatId ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                  {emp.seatId ? `Seat: ${emp.seatId}` : 'Unassigned Desk'}
+                </span>
+                <span className="text-[11px] bg-white text-indigo-600 border border-slate-200 px-2.5 py-1 rounded-md font-bold shadow-xs inline-block">
+                  {emp.projectCode || 'No Project'}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-slate-50 border border-dashed border-slate-200 rounded-xl p-12 flex flex-col items-center text-center flex-1 justify-center">
+          <UserCheck className="w-12 h-12 text-indigo-300 mb-3" />
+          <h5 className="font-bold text-indigo-700 text-base">No New Joiners</h5>
+          <p className="text-sm text-indigo-400 font-sans mt-1">
+            There are currently no employees with the New Joiner status.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
