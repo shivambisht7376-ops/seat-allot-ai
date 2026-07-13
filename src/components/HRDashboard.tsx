@@ -19,7 +19,6 @@ import { ProjectManager }    from './ProjectManager.js';
 const TABS = [
   { id: 'dashboard', label: 'Overview',     icon: LayoutDashboard },
   { id: 'roster',    label: 'Employees',    icon: Users },
-  { id: 'queue',     label: 'Seat Queue',   icon: UserPlus },
   { id: 'projects',  label: 'Projects',     icon: Briefcase },
   { id: 'assistant', label: 'AI Assistant', icon: Bot },
 ];
@@ -97,11 +96,6 @@ export function HRDashboard() {
               >
                 <Icon className="w-4 h-4" />
                 <span>{t.label}</span>
-                {t.id === 'queue' && stats && stats.unassignedJoiners > 0 && (
-                  <span className="ml-1 bg-amber-500 text-white font-mono font-bold text-[9px] w-4 h-4 flex items-center justify-center rounded-full">
-                    {stats.unassignedJoiners > 9 ? '9+' : stats.unassignedJoiners}
-                  </span>
-                )}
               </button>
             );
           })}
@@ -120,7 +114,6 @@ export function HRDashboard() {
               <motion.div key={tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
                 {tab === 'dashboard' && <Dashboard id="hr-dashboard" stats={stats} onStatsChanged={fetchGlobal} />}
                 {tab === 'roster'    && <EmployeeDirectory id="hr-roster" projects={projects} onStatsChanged={fetchGlobal} userRole="MANAGER" />}
-                {tab === 'queue'     && <UnassignedQueue id="hr-queue" onStatsChanged={fetchGlobal} />}
                 {tab === 'projects'  && <ProjectManager id="hr-projects" projects={projects} onProjectCreated={fetchGlobal} onStatsChanged={fetchGlobal} />}
                 {tab === 'assistant' && <AiAssistantPanel id="hr-assistant" onStatsChanged={fetchGlobal} />}
               </motion.div>

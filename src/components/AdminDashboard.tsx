@@ -22,7 +22,6 @@ const TABS = [
   { id: 'seating',   label: 'Floor Maps',    icon: MapPin },
   { id: 'roster',    label: 'Employees',     icon: Users },
   { id: 'projects',  label: 'Projects',      icon: Briefcase },
-  { id: 'queue',     label: 'New Joiners',   icon: UserPlus },
   { id: 'assistant', label: 'AI Assistant',  icon: Bot },
 ];
 
@@ -99,11 +98,6 @@ export function AdminDashboard() {
               >
                 <Icon className="w-4 h-4" />
                 <span>{t.label}</span>
-                {t.id === 'queue' && stats && stats.unassignedJoiners > 0 && (
-                  <span className="ml-1 bg-amber-500 text-white font-mono font-bold text-[9px] w-4 h-4 flex items-center justify-center rounded-full">
-                    {stats.unassignedJoiners > 9 ? '9+' : stats.unassignedJoiners}
-                  </span>
-                )}
               </button>
             );
           })}
@@ -124,7 +118,6 @@ export function AdminDashboard() {
                 {tab === 'seating'   && <SeatingMap id="admin-seating" projects={projects} onStatsChanged={fetchGlobal} />}
                 {tab === 'roster'    && <EmployeeDirectory id="admin-roster" projects={projects} onStatsChanged={fetchGlobal} userRole="ADMIN" />}
                 {tab === 'projects'  && <ProjectManager id="admin-projects" projects={projects} onProjectCreated={fetchGlobal} onStatsChanged={fetchGlobal} />}
-                {tab === 'queue'     && <UnassignedQueue id="admin-queue" onStatsChanged={fetchGlobal} />}
                 {tab === 'assistant' && <AiAssistantPanel id="admin-assistant" onStatsChanged={fetchGlobal} />}
               </motion.div>
             )}
