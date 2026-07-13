@@ -184,7 +184,7 @@ export function EmployeeDirectory({ id, projects, onStatsChanged, userRole = 'EM
           department: addDepartment.trim(),
           joinDate: addJoinDate,
           projectCode: addProjectCode.trim() || undefined,
-          status: 'Active'
+          status: 'New Joiner'
         })
       });
       if (res.ok) {

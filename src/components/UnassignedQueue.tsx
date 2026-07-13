@@ -26,7 +26,7 @@ export function UnassignedQueue({ id, onStatsChanged }: UnassignedQueueProps) {
     setLoading(true);
     try {
       const [resUnassigned, resAllocated] = await Promise.all([
-        fetch('/api/employees?limit=500&isUnassigned=true&status=New%20Joiner', { headers: authHeader as any }),
+        fetch('/api/employees?limit=500&isUnassigned=true', { headers: authHeader as any }),
         fetch('/api/employees?limit=15&isUnassigned=false&status=New%20Joiner', { headers: authHeader as any })
       ]);
       
@@ -79,10 +79,10 @@ export function UnassignedQueue({ id, onStatsChanged }: UnassignedQueueProps) {
           <div>
             <h4 className="text-base font-bold text-indigo-900 font-sans flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-              New Joiner Queue
+              Pending Desk Allocations
             </h4>
             <p className="text-xs text-indigo-500 font-sans mt-0.5">
-              {total} unallocated new joiners pending a desk mapping
+              {total} unallocated employees pending a desk mapping
             </p>
           </div>
 
@@ -150,7 +150,7 @@ export function UnassignedQueue({ id, onStatsChanged }: UnassignedQueueProps) {
 
                 <div className="text-right flex-shrink-0">
                   <span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-100 rounded text-[10px] font-bold uppercase block mb-1">
-                    Joiner
+                    {emp.status === 'New Joiner' ? 'Joiner' : 'Unassigned'}
                   </span>
                   <span className="text-[10px] bg-slate-200/60 text-indigo-600 border border-slate-300/40 px-1.5 py-0.5 rounded font-bold">
                     {emp.projectCode || 'No Project'}
@@ -164,7 +164,7 @@ export function UnassignedQueue({ id, onStatsChanged }: UnassignedQueueProps) {
             <UserCheck className="w-8 h-8 text-indigo-400 mb-2" />
             <h5 className="font-bold text-indigo-700 text-xs">Queue Cleared</h5>
             <p className="text-[11px] text-indigo-400 font-sans mt-1">
-              All incoming new joiners have been assigned workspaces successfully.
+              All incoming employees have been assigned workspaces successfully.
             </p>
           </div>
         )}
